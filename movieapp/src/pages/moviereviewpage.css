@@ -1,0 +1,81 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+body {
+  max-width: 100%;
+  overflow-x:auto;
+}
+
+.review-page-container {
+  background-color: #1c1c1c;
+  color: white;
+  padding-top: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 1400px;
+  height: auto;
+}
+
+.reviews-section{
+  background-image: linear-gradient(#1c1c1c,grey);
+  width: 1400px;
+  min-height: 1400px;
+  height: auto;
+  
+}
+.movie-posters {
+  height:240px;
+  width: 160px;
+  margin-left: 10px;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
+
+}
+.review {
+  display: flex;
+  margin-bottom: 40px;
+
+}
+
+.review-information {
+  margin-left: 30px;
+}
+
+.review-link {
+  color: white;
+  text-decoration: none;
+}
+
+.review-link:hover {
+  color: grey;
+  text-decoration: none;
+}
+
+.review-date {
+  display: flex;
+  margin-top: 20px;
+}
+
+.review-rating {
+  display: flex;
+  margin-top: 5px;
+}
+
+.review-description {
+  margin-top: 30px;
+  width: 700px;
+}
+
+hr {
+  color: white;
+}
+.line {
+  
+}
+
+
+

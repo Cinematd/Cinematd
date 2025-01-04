@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif !important;
+  }
+  
+  body {
+    max-width: 100%;
+    overflow-x:auto;
+    
+  }
+  
+  .moviereviewcontainer {
+    background-color: #1c1c1c;
+    color: white;
+    padding-top: 150px;
+    display: flex;
+    justify-content: center;
+    height: auto;
+  }
+  
+  .reviewsection{
+    background-color: #1c1c1c;
+    width: 1400px;
+    border-radius: 25px;
+    box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+    height: auto;
+    min-height: 525px;
+    margin-bottom: 700px;
+
+    
+    
+  }
+  .review-movie-posters {
+    width: 320px;
+    height: 480px;
+    margin-right: 10px;
+    box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
+  }
+
+  .review {
+    margin-top: 40px;
+    margin-left: 40px;
+    display: flex;
+    margin-bottom: 40px;
+  
+  }
+  
+  .the-review-date {
+    margin-top: 20px;
+    display: flex;
+  }
+
+  .the-review-rating {
+    margin-top: 5px;
+    display: flex;
+  }
+  
+  .review-description {
+    width: 700px;
+  }
+
+  .review-informationss {
+    margin-left: 30px;
+  }
+  
+  hr {
+    color: white;
+  }
+  .line {
+    
+  }
+  
+  

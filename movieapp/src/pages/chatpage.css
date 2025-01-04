@@ -1,0 +1,190 @@
+.chatpage {
+  background-color: #1c1c1c;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chatpage .chat-container {
+  border: 1px solid white;
+  border-radius: 10px;
+  width: 65%;
+  height: 80%;
+  display: flex;
+  overflow: hidden;
+}
+@media screen and (max-width: 768px) {
+  .chatpage .chat-container {
+    width: 90%;
+  }
+}
+.chatpage .chat-container .sidebar {
+  flex: 1;
+  background-color: #424242;
+  position: relative;
+}
+.chatpage .chat-container .sidebar .chat-navbar {
+  display: flex;
+  align-items: center;
+  background-color: #292929;
+  height: 50px;
+  padding: 10px;
+  justify-content: space-between;
+  color: white;
+}
+.chatpage .chat-container .sidebar .chat-navbar .chat-title {
+  font-weight: bold;
+}
+@media screen and (max-width: 768px) {
+  .chatpage .chat-container .sidebar .chat-navbar .chat-title {
+    display: none;
+  }
+}
+.chatpage .chat-container .sidebar .chat-navbar .user {
+  display: flex;
+  gap: 10px;
+}
+.chatpage .chat-container .sidebar .chat-navbar .user img {
+  background-color: white;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.chatpage .chat-container .sidebar .search {
+  border-bottom: 1px solid gray;
+}
+.chatpage .chat-container .sidebar .search .searchForm {
+  padding: 10px;
+}
+.chatpage .chat-container .sidebar .search .searchForm input {
+  background-color: #1c1c1c;
+  border: none;
+  color: white;
+  width: 500px;
+  border-radius: 0%;
+  height: 40px;
+}
+.chatpage .chat-container .sidebar .search .searchForm input::-moz-placeholder {
+  color: lightgray;
+}
+.chatpage .chat-container .sidebar .search .searchForm input::placeholder {
+  color: lightgray;
+}
+.chatpage .chat-container .sidebar .userChat {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  cursor: pointer;
+}
+.chatpage .chat-container .sidebar .userChat:hover {
+  background-color: #292929;
+}
+.chatpage .chat-container .sidebar .userChat img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.chatpage .chat-container .sidebar .userChat .userChatInfo span {
+  font-size: 18px;
+  font-weight: 500;
+}
+.chatpage .chat-container .sidebar .userChat .userChatInfo p {
+  font-size: 14px;
+  color: lightgray;
+}
+.chatpage .chat-container .chat {
+  flex: 2;
+}
+.chatpage .chat-container .chat .chatInfo {
+  height: 50px;
+  background-color: #424242;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  color: lightgray;
+}
+.chatpage .chat-container .chat .messages {
+  background-color: #292929;
+  padding: 10px;
+  height: calc(100% - 100px);
+  overflow: scroll;
+}
+.chatpage .chat-container .chat .messages .message {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.chatpage .chat-container .chat .messages .message .messageInfo {
+  display: flex;
+  flex-direction: column;
+  color: gray;
+  font-weight: 300;
+}
+.chatpage .chat-container .chat .messages .message .messageInfo img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+.chatpage .chat-container .chat .messages .message .messageContent {
+  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chatpage .chat-container .chat .messages .message .messageContent p {
+  background-color: white;
+  padding: 10px 20px;
+  border-radius: 0px 10px 10px 10px;
+}
+.chatpage .chat-container .chat .messages .message.owner {
+  flex-direction: row-reverse;
+}
+.chatpage .chat-container .chat .messages .message.owner .messageContent {
+  align-items: flex-end;
+}
+.chatpage .chat-container .chat .messages .message.owner p {
+  background-color: #8da4f1;
+  color: white;
+  border-radius: 10px 0px 10px 10px;
+}
+.chatpage .chat-container .chat .input {
+  height: 50px;
+  background-color: white;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.chatpage .chat-container .chat .input input {
+  width: 100%;
+  border: none;
+  outline: none;
+  color: black;
+  font-style: 18px;
+}
+.chatpage .chat-container .chat .input input::-moz-placeholder {
+  color: lightgray;
+}
+.chatpage .chat-container .chat .input input::placeholder {
+  color: lightgray;
+}
+.chatpage .chat-container .chat .input .send {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.chatpage .chat-container .chat .input .send button {
+  border: none;
+  padding: 10px;
+  color: white;
+  background-color: #424242;
+}/*# sourceMappingURL=chatpage.css.map */

@@ -1,0 +1,170 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+body {
+  max-width: 100%;
+  overflow-x:auto;
+}
+
+.movie-container {
+  background-color: #1c1c1c;
+  padding-top: 100px;
+  height: auto;
+
+}
+
+
+.movie-banner-image {
+  height: 720px;
+  width: 1280px;
+  box-shadow: 0px 0px 40px 40px #1c1c1c inset;
+  animation: fade-in 0.5s;
+  max-width: 100%;
+}
+
+
+.movie-information{
+  width: 1200px;
+  background-color: #1c1c1c;
+   /* #0d0d0d; */
+  justify-content: center;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+  border-radius: 25px;
+  height: auto;
+  min-height: 525px;
+  padding-bottom: 5px;
+  flex-wrap: wrap; 
+}
+
+.movie-poster{
+  width: 320px;
+  height: 480px;
+  margin-left: 20px;
+  margin-top: 20px;
+  float: left;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
+}
+.stars {
+size: 100px;
+}
+
+
+
+.movie-container .title {
+  font-size: 80px;
+  color: white;
+  
+}  
+
+.movie-container .title .movie-header{
+  font-size: 20px;
+}
+
+.movie-container .title .optional-title {
+  font-size: 30px;
+  color: #b5b5b5;
+  margin-bottom: 20px;
+}
+
+
+.movie-container .description {
+  color: white;
+  margin-left: 375px;
+  margin-right: 30px;
+  text-align: center;
+}
+.movie-container .copyright {
+  margin-top: 100px;
+  
+}
+
+.favorite-movie-poster{
+  width: 214px;
+  height: 320px;
+  margin: 15px;
+  border-radius: 12px;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
+
+}
+.favorite-movie-poster:hover{
+  cursor: pointer;
+
+}
+
+
+.add-to-section{
+  margin-top: 20px;
+  bottom: 0;
+  color: white;
+  /* display: flex;
+  align-items: center;
+  justify-content: center; */
+  padding-top: 10px;
+  background-color:  #1c1c1c;
+  border-radius: 25px;
+  width: 1200px;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 15px 30px 4px;
+
+}
+
+
+.add-to-favorite-button{
+  font-size: 64px;
+  margin-left: 30px;
+  margin-right: 30px;
+  color: white;
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.heart-icon {
+  color: white;
+}
+
+.star-rating-icon {
+  color: #406291;
+}
+
+.add-to-watchlist-button{
+  font-size: 32px;
+  margin-left: 20px;
+  color: white;
+  background-color: transparent;
+  border-color: transparent;
+}
+.log-button{
+  font-size: 32px;
+  color: white;
+  background-color: transparent;
+  border-color: transparent;
+}
+.review-section{
+  color: white;
+  background-color: transparent;
+  height: auto;
+  border-radius: 25px;
+  padding-bottom: 20px;
+  /* padding-top: 20px; */
+
+  
+}
+
+
+#outlined-textarea {
+  color: white;
+}
+.submit-review-button{
+  font-size: 24px;
+  margin-left: 20px;
+  color: white;
+  background-color: transparent;
+  border-color: transparent;
+  padding-top: 10px;
+}
+
+
+

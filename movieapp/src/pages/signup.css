@@ -1,0 +1,54 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif !important;
+  }
+ 
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+    background-color: #1c1c1c;
+    
+    
+  }
+  .sign-up-container {
+    background-color: #1c1c1c;
+    color: white;
+    padding-top: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 1200px;
+  }
+  .usernamebox {
+    padding-top: 10px;
+  }
+  .emailbox {
+    padding-top: 10px;
+  }
+  .passwordbox {
+    padding-top: 10px;
+  }
+
+  .signup-textbox{
+    width: 450px;
+    border: 1px solid white;
+  }
+  .signoutPage-button{
+    color: white ;
+    background-color: #292929;
+    width: 90px;
+    height: 40px;
+    border: none;
+    font-size: 18px;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+  }
+  .signoutPage-button:hover{
+    background-color: white;
+    color: #1c1c1c;
+    box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
+  }

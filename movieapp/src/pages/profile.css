@@ -1,0 +1,306 @@
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif !important;
+  }
+ 
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+    background-color: #1c1c1c;
+    
+    
+  }
+
+  .profile-page-container{
+    background-color: #1c1c1c;
+    height: auto;
+    padding-top: 100px;
+    justify-content: center;
+    display: flex;
+    flex-wrap: wrap;
+
+    
+
+  }
+  .profile-page-container .profile-box{
+    background-image: linear-gradient(#1c1c1c,#636363);    
+    width: 1300px;
+    height: auto;
+    padding-top: 25px;
+    padding-left: 25px;
+    color: white;
+    flex-direction: column;
+    overflow-wrap: break-word;
+    flex-wrap: wrap;
+
+  }
+
+  .signout-button{
+    color: white ;
+    background-color: #1c1c1c;
+    width: 90px;
+    height: 40px;
+    border: none;
+    font-size: 18px;
+    border-radius: 5px;
+  }
+  .signout-button:hover{
+    background-color: white;
+    color: #1c1c1c;
+    box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
+  }
+
+  .choose-avatar-button{
+    width: 600px;
+  }
+
+
+  h1 {
+    color: white;
+  }
+
+
+
+  h3 {
+    color: white;
+  }
+
+  .profile-tab {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .user-tab {
+    display: flex;
+  }
+
+  .logged-movies-tab {
+    position: relative;
+    display: flex;
+  }
+
+  .friends-tab {
+    position: relative;
+    margin-left: 500px;
+  }
+  .reviews-tab {
+    position: relative;
+    margin-left: 450px;
+  }
+
+    .edit-button{
+      border: transparent;
+      background-color: transparent;
+    }
+    
+  .follow-button {
+    position: relative;
+    left: 800px;
+    color: white ;
+    background-color: #1c1c1c;
+    width: 90px;
+    height: 40px;
+    border: none;
+    font-size: 18px;
+    border-radius: 5px;
+
+  }
+  .follow-button:hover{
+    background-color: white;
+    color: #1c1c1c;
+    box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
+  }
+
+  .profile-page-container .profile-box .profile-picture {
+    line-height: 0;		/* remove line-height */ 
+    display: inline-block;	/* circle wraps image */
+    margin: 5px;
+    border: 1px solid rgba(200,200,200,0.4);
+    border-radius: 50%;	/* relative value */
+    /*box-shadow: 0px 0px 5px rgba(0,0,0,0.4);*/
+    transition: linear 0.25s;
+    height: 256px;
+    width: 256px;
+    float: left;
+    order: 1;
+    display: flex;
+    margin-top: 50px;
+    object-fit: cover;
+
+  }
+  .profile-name{
+    order: 2;
+    /* padding-bottom: 30px; */
+    display: flex;
+    /* flex: 1 1 50%; */
+    margin-left: 310px;
+    margin-top: 80px;
+
+  }
+
+  .profile-description{
+    order: 3;
+    font-size: 18px;
+    width: 720px;
+    height: auto;
+    min-height: 250px;
+    /* margin-left: 425px; */
+    display: flex;
+    overflow:visible;
+    margin-left: 310px;
+    color: #b5b5b5;
+  }
+
+  .filmswatched-link{
+    margin-bottom: 15px;
+    text-decoration: none;
+    /* padding-left: 300px; */
+    overflow:visible;
+    order: 4;
+    margin-left: 300px;
+  }
+
+  .watch-link {
+    color: white;
+    font-size: 24px;
+
+  }
+
+  .watch-link:hover {
+    color: grey;
+    text-decoration: none;
+  }
+
+  .watchlist-link {
+    color: white;
+    font-size: 30px;
+
+  }
+
+  .watchlist-link:hover {
+    color: grey;
+    text-decoration: none;
+  }
+
+
+  .filmswatched-link:hover{
+    text-decoration: none;
+    color: white;
+  }
+
+  .profile-sign-out {
+    margin-left: 10px;
+  }
+
+  .profile-favorite-movies-title {
+    font-size: 32px;
+    padding-top: 20px;
+    /* align-items: center; */
+    /* justify-content: center; */
+  }
+
+  .profile-favorite-movies {
+    height: auto;
+    display: flex;
+  }
+
+  .poster-sizing {
+    width: 214px;
+    height: 320px;
+    margin-left: 20px;
+    margin-top: 20px;
+    box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
+    
+  }
+  .watchlist-title {
+    font-size: 32px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 30px;
+  }
+
+
+  .expand-button{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    /* font-size: 24px; */
+  }
+
+  .expand-button .expand{
+    align-items: center;
+    background-color: transparent;
+    border-radius: 12px;
+    box-shadow: transparent 0 0 0 3px,rgba(18, 18, 18, .1) 0 6px 20px;
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    /* flex: 1 1 auto; */
+    justify-content: center;
+    line-height: 1;
+    margin: 0;
+    outline: none;
+    text-align: center;
+    text-decoration: none;
+    transition: box-shadow .2s,-webkit-box-shadow .2s;
+    white-space: nowrap;
+    border: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.names-textbox{
+  width: 300px;
+  border-color: white;
+  border: 1px solid white;
+  color: white;
+}
+
+.bio-textbox{
+  width: 500px;
+  border-color: white;
+  border: 1px solid white;
+  color: white;
+
+}
+
+.submit-changes-button{
+    margin-top: 10px;
+    align-items: center;
+    background-color: #262626;
+    border-radius: 12px;
+    box-shadow: transparent 0 0 0 3px,rgba(18, 18, 18, .1) 0 6px 20px;
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+    display: inline-flex;
+    /* flex: 1 1 auto; */
+    justify-content: center;
+    line-height: 1;
+    outline: none;
+    padding: 1rem 1.2rem;
+    text-align: center;
+    text-decoration: none;
+    transition: box-shadow .2s,-webkit-box-shadow .2s;
+    white-space: nowrap;
+    border: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    
+}
+.submit-changes-button:hover {
+  box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
+  background-color: white;
+  color: black; 
+}
+
+
+
+

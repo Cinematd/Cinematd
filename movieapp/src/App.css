@@ -1,0 +1,402 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif !important;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+.App {
+  min-height: 100vh;
+
+
+}
+
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: black;
+}
+
+.primary-button {
+  padding: 0.9rem 1.75rem;
+  background-color: white;
+  outline: none;
+  border: none;
+  border-radius: 5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.primary-button:hover {
+  background-color: rgb(234, 234, 234);
+}
+
+.home-container {
+  background-color: #1c1c1c;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+
+
+}
+
+.banner-background{
+  text-decoration: none;
+  
+
+}
+
+
+.banner-background :hover{
+  text-decoration: none;
+}
+.home-banner-container {
+  background-color: black;
+  height: 77px;
+  width: 1020px;
+  display: flex;
+  justify-content: center;
+  /* position: relative; */
+}
+.home-image-container {
+  height: 515px;
+  width: 1440px;
+
+}
+
+.bigTopPicture {
+  position:relative;
+  z-index: 0;
+  height: px;
+  width: auto;
+  border-radius: 10px;
+}
+
+.the-banner {
+  height: 720px;
+  width: 1280px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 40px 40px #1c1c1c inset;
+  animation: fade-in 0.5s;
+  
+}
+
+.home-image-section {
+  max-width: 600px;
+  flex: 1;
+  
+}
+.home-text-section {
+  margin: auto;
+  width: 50%;
+  padding: 10px;
+  font-size: 64;
+  z-index: 1;
+  ;
+
+}
+.primary-heading {
+  font-size: 64;
+  color:white;
+  font-weight: 400;
+  left: 0;
+  right: 0;
+  top: 575px;
+  position:relative;
+  text-decoration: none;
+  text-align: center;
+  letter-spacing: -1.28px;
+
+  .primary-heading a :hover {
+    text-decoration: none;
+
+  }
+
+
+
+
+
+}
+.primary-text {
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  max-width: 500px;
+  color: #6a6a6a;
+  margin: 1.5rem 0rem;
+}
+{
+  padding: 1rem 2.5rem;
+  background-color: #394193;
+  outline: none;
+  border: none;
+  border-radius: 5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 45%;
+  right: 46%;
+  top: 50%;
+  position:absolute;
+}
+.secondary-button {
+  align-items: center;
+  background-color: #1c1c1c;
+  border-radius: 12px;
+  box-shadow: transparent 0 0 0 3px,rgba(18, 18, 18, .1) 0 6px 20px;
+  box-sizing: border-box;
+  color: white;
+  cursor: pointer;
+  justify-content: center;
+  line-height: 1;
+  margin: 0;
+  outline: none;
+  padding: 1rem 1.2rem;
+  text-decoration: none;
+  transition: box-shadow .2s,-webkit-box-shadow .2s;
+  white-space: nowrap;
+  border: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  position:relative;
+  left: 50%;
+  bottom: 50px;
+  transform: translate(-50%, -50%);
+  
+}
+
+.expand:hover {
+  box-shadow: #121212 0 20px 20px 3px, transparent 0 0 0 0;
+}
+
+.secondary-button svg {
+  margin-left: 0.75rem;
+  font-size: 1.5rem;
+}
+.secondary-button:hover {
+  background-color: white;
+  color: black;
+  box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
+
+}
+.UpcomingMovies-section-container {
+  resize: both;
+  display:flex;
+
+}
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #1c1c1c;
+
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius:10px;
+
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.UpcomingMovies-text-section-container {
+  font-size: 24px;
+  color:white;
+  font-weight: 400;
+  left: 0;
+  letter-spacing: -1.28px;
+  text-align: center;
+  margin: auto;
+
+  /* padding-top: 20px; */
+}
+.arrow {
+  color: white;
+  text-decoration: none;
+}
+ 
+.arrow:hover{
+  color: gray; 
+  text-decoration: none;
+
+}
+
+.UpcomingMovies-images{
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+.MovieImage-size {
+  height: 438px;
+  width: 305px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  border-radius: 5px;
+  animation: fade-down 0.3s;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
+  resize: both;
+
+
+}
+
+
+.movie-of-the-day-container {
+  display: flex;
+  box-shadow: 0px 0px 40px 80px #1c1c1c inset;
+  height: 720px;
+  width: 1280px;
+  /* display: flex;
+  justify-content: center;
+  align-items: center;    */
+  /* background-size: cover; */
+  margin-top: 50px;
+  /* margin-right: 1200px; */
+  /* margin-left: 200px; */  
+
+  
+  
+
+}
+.content-motd{
+  padding-top: 130px;
+   /* justify-content: center;
+   align-items: center; */
+   /* top: 0; */
+   /* left: 0; */
+   width: 100%;
+   height: 100%;
+   backdrop-filter: blur();
+   -webkit-backdrop-filter: blur(5px);
+   position: relative; /* Add this line */
+   z-index: 0;
+   backdrop-filter: blur(8px);
+}
+
+.movie-of-the-day-poster{
+  height: 438px;
+  width: 305px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  border-radius: 5px;
+  animation: fade-down 0.3s;
+  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
+  float: left;
+     /* backdrop-filter: blur(8px); */
+
+
+}
+
+
+.movie-of-the-day-container .movie-of-the-day-heading{
+  color:white;
+  font-size: 80px;
+  text-align: justify;
+     /* backdrop-filter: blur(8px); */
+
+  
+}
+
+.movie-of-the-day-title{
+  color: white;
+  font-size: 40px;
+  text-align: justify;
+  
+}
+.movie-of-the-day-description{
+  color: white;
+  font-size: 24px;
+  width: 1000px;
+  text-align: justify;
+}
+
+
+.primary-subheading {
+  font-weight: 700;
+  color: #394193;
+  font-size: 1.15rem;
+}
+
+.trending-movies-title{
+  color: white;
+}
+
+.trending-movies-container {
+  resize: both;
+  display:flex;
+  
+}
+
+.trending-movies-posters {
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+@keyframes fade-down {
+  from {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+

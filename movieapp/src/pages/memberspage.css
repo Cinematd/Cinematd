@@ -1,0 +1,83 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif !important;
+  }
+  
+  body {
+    max-width: 100%;
+    overflow-x:auto;
+  }
+  
+  .member-page-container {
+    background-color: #1c1c1c;
+    color: white;
+    padding-top: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 1400px;
+    height: auto;
+  }
+  
+  .member-section{
+    background-image: linear-gradient(#1c1c1c,grey);
+    width: 1400px;
+    min-height: 1400px;
+    height: auto;
+    
+  }
+
+  .member-acc {
+    display: flex;
+    margin-bottom: 40px;
+  }
+
+  .member-acc .member-acc-block {
+    height: 225px;
+  }
+
+  .member-acc-block .member-avatars {
+    line-height: 0;		/* remove line-height */ 
+    display: inline-block;	/* circle wraps image */
+    margin: 5px;
+    border: 4px solid rgba(200,200,200,0.4);
+    border-radius: 50%;	/* relative value */
+    /*box-shadow: 0px 0px 5px rgba(0,0,0,0.4);*/
+    transition: linear 0.25s;
+    position: absolute;
+    height: 128px;
+    width: 128px;
+    float: left;
+    order: 1;
+    margin-left: 30px;
+    margin-top: 50px;
+    object-fit: cover;
+  }
+
+  .username-link {
+    color: #8c8c8c;
+    font-size: 24px;
+  }
+
+  .username-link:hover {
+    color: #65646e;
+    text-decoration: none;
+  }
+  
+  .member-acc-block .member-user {
+    order: 2;
+    position: absolute;
+    margin-top: 65px;
+    margin-left: 200px;
+  }
+  
+  hr {
+    color: white;
+  }
+  
+  line {
+
+  }
+  
