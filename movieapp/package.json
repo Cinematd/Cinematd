@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "cinematd.github.io/Cinematd",
+  "homepage": "https://cinematd.com",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
