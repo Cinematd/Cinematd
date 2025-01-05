@@ -39,7 +39,8 @@ const options = {
 
 function Profile() {
     // Pair programming: Pride & Amer.
-    let user = window.location.href.split('/')[4];
+    const url = window.location.href.split('/');
+    let user = url[url.length - 1];
     let name, bio, avatar, filmsWatched, reviews, friends;
     let followButton, editButton, signOutButton;
 

@@ -53,7 +53,9 @@ function IndividualReviewPage() {
             for (let i = 0; i < json[key].reviews.length; i++) {
                 const review = json[key].reviews[i];
 
-                if (review.reviewId === href.split('/')[4]) {
+                const url = href.split('/');
+
+                if (review.reviewId === url[url.length - 1]) {
                     setPath('/movie/' + review.title.replaceAll(' ', '-').toLowerCase() + '-' + review.year);
                     setReview(review);
                     setUpdated(true);

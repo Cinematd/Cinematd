@@ -29,7 +29,8 @@ const options = {
 
 function Watchlist() {
     // Pair programming: Pride & Amer.
-    let user = window.location.href.split('/')[4];
+    const url = window.location.href.split('/');
+    let user = url[url.length - 2];
 
     const [movies, setMovies] = useState([]);
     const [json, setJSON] = useState({});

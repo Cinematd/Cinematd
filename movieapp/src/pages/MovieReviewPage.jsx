@@ -20,7 +20,8 @@ import Rating from '@mui/material/Rating';
 
 function MovieReviewPage() {
     // Pride
-    let user = window.location.href.split('/')[4];
+    const url = window.location.href.split('/');
+    let user = url[url.length - 2];
     const [json, setJSON] = useState({});
     const [reviews, setReviews] = useState([]);
     const [updated, setUpdated] = useState(false);

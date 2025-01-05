@@ -17,7 +17,8 @@ import { Link } from 'react-router-dom';
 
 function FollowingPage() {
     // Pair programming: Pride & Amer.
-    let user = window.location.href.split('/')[4];
+    const url = window.location.href.split('/');
+    let user = url[url.length - 2];
     const [json, setJSON] = useState({});
     const [friends, setFriends] = useState([]);
     const [updated, setUpdated] = useState(false);
