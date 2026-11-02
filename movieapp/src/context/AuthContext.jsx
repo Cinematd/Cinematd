@@ -15,6 +15,9 @@ export const AuthContextProvider = ({children}) => {
     // Amer
     const [authJson, setAuthJSON] = useState({});
     const [authUser, setAuthUser] = useState(null);
+    // False until Firebase reports the sign-in state for the first time, so
+    // pages can tell "still checking" apart from "signed out".
+    const [authReady, setAuthReady] = useState(false);
     const [json, setJSON] = useState({});
 
     useEffect(() => {
@@ -56,6 +59,7 @@ export const AuthContextProvider = ({children}) => {
           } else {
             setAuthUser(null);
           }
+          setAuthReady(true);
         });
     
         return () => {
@@ -64,7 +68,7 @@ export const AuthContextProvider = ({children}) => {
     }, []);
 
     return (
-    <AuthContext.Provider value={{authUser}}>
+    <AuthContext.Provider value={{authUser, authReady}}>
         {children}
     </AuthContext.Provider>
 

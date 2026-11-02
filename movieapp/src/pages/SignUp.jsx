@@ -6,7 +6,7 @@ import { beforeAuthStateChanged, createUserWithEmailAndPassword } from "firebase
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import TextField from '@mui/material/TextField';
 
@@ -86,6 +86,10 @@ const SignUp = () => {
     getMembersJSON();
   }, []);
 
+  // Where to go after signing up, if another page sent the visitor here.
+  const location = useLocation();
+  const returnTo = location.state && location.state.from ? location.state.from : null;
+
   let navigate = useNavigate(); 
     const redirect = (p) => { 
       let path = p; 
@@ -160,7 +164,7 @@ const SignUp = () => {
             await setMembers();
             await setNewUser();
             await setChatUp();
-            redirect(`/profile/${username}`);
+            redirect(returnTo ? returnTo : `/profile/${username}`);
             window.location.reload();
           }
           update();
@@ -218,7 +222,7 @@ const SignUp = () => {
             />
         </div>
         <button className="btn-screen" type="submit">Sign up</button>
-        <div className="auth-switch"><Link to="/signin" className="link">Already have an account? Log in</Link></div>
+        <div className="auth-switch"><Link to="/signin" state={returnTo ? { from: returnTo } : undefined} className="link">Already have an account? Log in</Link></div>
       </form>
     </div>
   );

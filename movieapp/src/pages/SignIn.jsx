@@ -6,7 +6,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 /**
  * SignIn component:
@@ -66,6 +66,11 @@ const SignIn = () => {
     getJSON();
   }, []);
 
+  // Where to go after logging in, if another page sent the visitor here
+  // (for example Chat, which needs an account).
+  const location = useLocation();
+  const returnTo = location.state && location.state.from ? location.state.from : null;
+
   let navigate = useNavigate(); 
   const redirect = (p) => { 
       let path = p; 
@@ -77,7 +82,9 @@ const SignIn = () => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        if (json !== undefined) {
+        if (returnTo) {
+          redirect(returnTo);
+        } else if (json !== undefined) {
           if (json[userCredential.user.email] !== undefined) {
             redirect(`/profile/${json[userCredential.user.email].username}`)
           }
@@ -94,7 +101,7 @@ const SignIn = () => {
     <div className="sign-in-container">
       <form onSubmit={signIn}>
         <h1>Log in</h1>
-        <p className="auth-sub">Log films, rate them, and talk them over with friends.</p>
+        <p className="auth-sub">{returnTo === '/chat' ? 'Log in or create an account to chat with other members.' : 'Log films, rate them, and talk them over with friends.'}</p>
         <div className="emailbox">
         <form>
           <input
@@ -122,7 +129,7 @@ const SignIn = () => {
           </form>
         </div>
         <button className="login-button btn-screen" type="submit">Log in</button>
-        <div className="auth-switch"><Link to="/signup" className="link">Don't have an account? Sign up</Link></div>
+        <div className="auth-switch"><Link to="/signup" state={returnTo ? { from: returnTo } : undefined} className="link">Don't have an account? Sign up</Link></div>
       </form>
     </div>
   );
