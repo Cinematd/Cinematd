@@ -15,6 +15,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { defaultAvatar } from '../util/avatar';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
+import { memberPosterUrl, fallBackTo } from '../util/posters';
 
 let todaysDate = new Date().toLocaleDateString().split('/');
 todaysDate = [parseInt(todaysDate[0]), parseInt(todaysDate[1]), parseInt(todaysDate[2])];
@@ -367,20 +368,24 @@ function Profile() {
                 Promise.all(promises).then(results => {
                     for (let i = 0; i < results.length; i++) {
                         let release = '';
-                        let poster = tmdbImage(results[i].poster_path);
+                        const defaultPoster = tmdbImage(results[i].poster_path);
+                        let savedPoster;
 
                         if (results[i].release_date !== undefined) {
                             release = results[i].release_date.split('-')[0];
                         }
                         for (let j = 0; j < json[user].favoriteFilms.length; j++) {
                             if (json[user].favoriteFilms[j].id === results[i].id && json[user].favoriteFilms[j].poster !== undefined) {
-                                poster = resizeTmdbUrl(json[user].favoriteFilms[j].poster);
+                                savedPoster = json[user].favoriteFilms[j].poster;
                             }
                         }
+                        // The member's chosen poster, if any (see util/posters.js).
+                        const poster = memberPosterUrl(json[user], results[i].id, results[i].poster_path, 'w500', savedPoster);
                         const map = {
                             title: results[i].original_title,
                             page_title: results[i].original_title.replaceAll(' ', '-').toLowerCase() + '-' + release,
                             poster: poster,
+                            defaultPoster: defaultPoster,
                             backdrop: 'https://image.tmdb.org/t/p/w1280' + results[i].backdrop_path
                         }
                         res.push(map);
@@ -393,9 +398,9 @@ function Profile() {
                             continue;
                         }
                         if (breakRandom === i && banner === '') {
-                            setBanner('https://image.tmdb.org/t/p/w1280' + movie.backdrop);
+                            setBanner(movie.backdrop);
                         }
-                        movs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>);
+                        movs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster} alt='' onError={fallBackTo(movie.defaultPoster)}></img></Link>);
                     }
                     setFavorites(movs);
                 });
@@ -419,20 +424,24 @@ function Profile() {
                         continue;
                     }
                     let release = '';
-                    let poster = tmdbImage(results[i].poster_path);
+                    const defaultPoster = tmdbImage(results[i].poster_path);
+                    let savedPoster;
 
                     if (results[i].release_date !== undefined) {
                         release = results[i].release_date.split('-')[0];
                     }
                     for (let j = 0; j < json[user].watchlist.length; j++) {
                         if (json[user].watchlist[j].id === results[i].id && json[user].watchlist[j].poster !== undefined) {
-                            poster = resizeTmdbUrl(json[user].watchlist[j].poster);
+                            savedPoster = json[user].watchlist[j].poster;
                         }
                     }
+                    // The member's chosen poster, if any (see util/posters.js).
+                    const poster = memberPosterUrl(json[user], results[i].id, results[i].poster_path, 'w500', savedPoster);
                     const map = {
                         title: results[i].original_title,
                         page_title: results[i].original_title.replaceAll(' ', '-').toLowerCase() + '-' + release,
                         poster: poster,
+                        defaultPoster: defaultPoster,
                         backdrop: 'https://image.tmdb.org/t/p/w1280' + results[i].backdrop_path
                     }
                     watchlistRes.push(map);
@@ -443,7 +452,7 @@ function Profile() {
                     if (movie === undefined) {
                         continue;
                     }
-                    watchlistMovs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>);
+                    watchlistMovs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster} alt='' onError={fallBackTo(movie.defaultPoster)}></img></Link>);
                 }
                 setWatchlist(watchlistMovs);
             });

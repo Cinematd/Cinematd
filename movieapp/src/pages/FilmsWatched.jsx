@@ -8,6 +8,7 @@ import { Link, useParams } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 import { getMovieDetails, forEachLimited } from '../util/movieDetails';
+import { memberPosterUrl, fallBackTo } from '../util/posters';
 
 // One star per point, plus a half star; ☰ marks a film logged without a rating.
 function ratingStars(rating) {
@@ -104,7 +105,9 @@ function FilmsWatched () {
                 title: title,
                 release_date: details.release_date,
                 page_title: title.replaceAll(' ', '-').toLowerCase() + '-' + year,
-                poster: entry.poster !== undefined ? resizeTmdbUrl(entry.poster) : tmdbImage(details.poster_path),
+                // The member's chosen poster, if any (see util/posters.js).
+                poster: memberPosterUrl(json[user], details.id, details.poster_path, 'w500', entry.poster),
+                defaultPoster: tmdbImage(details.poster_path),
                 rating: entry.rating
             });
             if (flushTimer === null) {
@@ -145,7 +148,7 @@ function FilmsWatched () {
                             <div className="film" key={movie.id}>
                                 <div className="film-poster">
                                     <Link to={`/movie/${movie.page_title}`} aria-label={movie.title}>
-                                        <img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster} alt=''></img>
+                                        <img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster} alt='' onError={fallBackTo(movie.defaultPoster)}></img>
                                     </Link>
                                 </div>
                                 <div className="stars film-rating">

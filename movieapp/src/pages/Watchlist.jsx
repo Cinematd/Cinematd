@@ -7,6 +7,7 @@ import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firesto
 import { Link } from 'react-router-dom';
 import React, { useEffect, useRef, useState } from 'react';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
+import { memberPosterUrl, fallBackTo } from '../util/posters';
 
 let todaysDate = new Date().toLocaleDateString().split('/');
 todaysDate = [parseInt(todaysDate[0]), parseInt(todaysDate[1]), parseInt(todaysDate[2])];
@@ -75,7 +76,8 @@ function Watchlist() {
                 }
                 let release = '';
                 // let page_title = '';
-                let poster = tmdbImage(results[i].poster_path);
+                const defaultPoster = tmdbImage(results[i].poster_path);
+                let savedPoster;
 
                 if (results[i].release_date !== undefined) {
                     release = results[i].release_date.split('-')[0];
@@ -87,14 +89,17 @@ function Watchlist() {
                 */
                 for (let j = 0; j < json[user].watchlist.length; j++) {
                     if (json[user].watchlist[j].id === results[i].id && json[user].watchlist[j].poster !== undefined) {
-                        poster = resizeTmdbUrl(json[user].watchlist[j].poster);
+                        savedPoster = json[user].watchlist[j].poster;
                     }
                 }
+                // The member's chosen poster, if any (see util/posters.js).
+                const poster = memberPosterUrl(json[user], results[i].id, results[i].poster_path, 'w500', savedPoster);
                 const map = {
                     title: results[i].original_title,
                     release_date: results[i].release_date,
                     page_title: results[i].original_title.replaceAll(' ', '-').toLowerCase() + '-' + release,
-                    poster: poster
+                    poster: poster,
+                    defaultPoster: defaultPoster
                 }
                 res.push(map);
             }
@@ -127,7 +132,7 @@ function Watchlist() {
                 if (movie === undefined) {
                     continue;
                 }
-                movs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>);
+                movs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster} alt='' onError={fallBackTo(movie.defaultPoster)}></img></Link>);
             }
             setMovies(movs);
         });

@@ -19,6 +19,7 @@ import Modal from '@mui/material/Modal';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 import { getMovieDetails, forEachLimited, normaliseTitle } from '../util/movieDetails';
+import { customPosterPath, fallBackTo } from '../util/posters';
 
 const options = {
     method: 'GET',
@@ -63,6 +64,12 @@ function Movie() {
     const [results, setResults] = useState([]);
     const [banner, setBanner] = useState('');
     const [poster, setPoster] = useState('');
+    const [defaultPosterPath, setDefaultPosterPath] = useState(null);
+    // Poster picker: open state, the film's TMDB posters (null until loaded),
+    // and the member's choice made on this visit (undefined = use saved one).
+    const [posterPickerOpen, setPosterPickerOpen] = useState(false);
+    const [posterOptions, setPosterOptions] = useState(null);
+    const [chosenPoster, setChosenPoster] = useState(undefined);
     const [director, setDirector] = useState('');
     const [logged, setLogged] = useState('Log');
     const [watchlist, setWatchlist] = useState('Add to Watchlist');
@@ -109,6 +116,7 @@ function Movie() {
                 .then(json => {
                     setResults(json.results);
                     setPoster(tmdbImage(json.results[0].poster_path, 'w780'));
+                    setDefaultPosterPath(json.results[0].poster_path || null);
                 })
                 .catch(err => console.log(err))
         }
@@ -207,6 +215,70 @@ function Movie() {
         }
         return currentNames.has(normaliseTitle(entry.title)) || currentNames.has(normaliseTitle(entry.original_title));
     };
+
+    // ---------- Member's chosen poster ----------
+    // Logged-in members can pick any of the film's current TMDB posters by
+    // clicking the poster. The choice is saved as json[user].posters[filmId]
+    // and shown on their own pages (see util/posters.js) and to them here.
+    const savedPosterPath = user !== null ? customPosterPath(json[user], id) : null;
+    const activePosterPath = chosenPoster !== undefined ? chosenPoster : savedPosterPath;
+    const displayPoster = activePosterPath ? tmdbImage(activePosterPath, 'w780') : poster;
+
+    const savePosterChoice = (path) => {
+        if (user === null || json[user] === undefined || !id) {
+            return;
+        }
+        if (!json[user].posters) {
+            json[user].posters = {};
+        }
+        // Choosing TMDB's default poster is the same as having no choice.
+        const choice = path && path !== defaultPosterPath ? path : null;
+        if (choice) {
+            json[user].posters[String(id)] = choice;
+        } else {
+            delete json[user].posters[String(id)];
+        }
+        setChosenPoster(choice);
+        setDoc(doc(getFirestore(app), "members", "member"), json);
+    };
+
+    // Loads the film's current posters from TMDB. Resolves to the list of file
+    // paths, or null if TMDB couldn't be reached.
+    const loadPosterOptions = () => {
+        if (posterOptions !== null) {
+            return Promise.resolve(posterOptions);
+        }
+        if (!id) {
+            return Promise.resolve(null);
+        }
+        return fetch('https://api.themoviedb.org/3/movie/' + id + '/images', options)
+            .then(res => (res.ok ? res.json() : Promise.reject(res.status)))
+            .then(images => {
+                const paths = (images.posters || []).map(p => p.file_path).filter(Boolean);
+                setPosterOptions(paths);
+                return paths;
+            })
+            .catch(() => null);
+    };
+
+    const openPosterPicker = () => {
+        setPosterPickerOpen(true);
+        loadPosterOptions();
+    };
+
+    // If the chosen poster has been removed from TMDB, go back to the default.
+    const posterCheckedFor = useRef(null);
+    useEffect(() => {
+        if (!savedPosterPath || chosenPoster !== undefined || posterCheckedFor.current === id) {
+            return;
+        }
+        posterCheckedFor.current = id;
+        loadPosterOptions().then(paths => {
+            if (paths !== null && !paths.includes(savedPosterPath)) {
+                savePosterChoice(null);
+            }
+        });
+    }, [savedPosterPath, id]);
 
     // Get and set current user.
     if (authJson !== null && authUser !== null && user === null) {
@@ -379,7 +451,69 @@ function Movie() {
                 <div className="movie-banner-image" style={{backgroundImage: "url(" + banner + ")"}}></div>
             </div>
             <div className="movie-information">
-                <img className="movie-poster" src={poster} alt={film == null ? '' : film.title + ' poster'}></img>
+                {user !== null ? (
+                    <button type="button" className="movie-poster-button" onClick={openPosterPicker} aria-label="Change poster">
+                        <img className="movie-poster" src={displayPoster} alt={film == null ? '' : film.title + ' poster'} onError={(e) => {
+                            if (!activePosterPath) {
+                                return;
+                            }
+                            // Show the default poster now; if TMDB no longer lists the
+                            // chosen one, clear the choice for good.
+                            fallBackTo(poster)(e);
+                            const broken = activePosterPath;
+                            loadPosterOptions().then(paths => {
+                                if (paths !== null && !paths.includes(broken)) {
+                                    savePosterChoice(null);
+                                }
+                            });
+                        }}></img>
+                        <span className="movie-poster-hint">Change poster</span>
+                    </button>
+                ) : (
+                    <img className="movie-poster" src={poster} alt={film == null ? '' : film.title + ' poster'}></img>
+                )}
+                <Modal
+                    open={posterPickerOpen}
+                    onClose={() => setPosterPickerOpen(false)}
+                    aria-labelledby="poster-picker-title">
+                    <Box sx={style}>
+                        <span className="modal-title" id="poster-picker-title">Choose a poster</span>
+                        <p className="poster-picker-note">Your choice shows on your profile, watchlist and logged films, for anyone who visits them.</p>
+                        {posterOptions === null ? (
+                            <p className="poster-picker-note">Loading posters…</p>
+                        ) : posterOptions.length === 0 ? (
+                            <p className="poster-picker-note">TMDB has no other posters for this film yet.</p>
+                        ) : (
+                            <div className="poster-picker-grid">
+                                {posterOptions.map(path => {
+                                    const isDefault = path === defaultPosterPath;
+                                    const selected = activePosterPath ? path === activePosterPath : isDefault;
+                                    return (
+                                        <button
+                                            type="button"
+                                            key={path}
+                                            className={'poster-option' + (selected ? ' is-selected' : '')}
+                                            aria-pressed={selected}
+                                            aria-label={isDefault ? 'Default poster' : 'Poster option'}
+                                            onClick={() => {
+                                                savePosterChoice(path);
+                                                setPosterPickerOpen(false);
+                                            }}>
+                                            <img loading="lazy" decoding="async" src={tmdbImage(path, 'w185')} alt=""></img>
+                                            {isDefault ? <span className="poster-option-label">Default</span> : null}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        {activePosterPath ? (
+                            <button type="button" className="btn-ghost poster-picker-reset" onClick={() => {
+                                savePosterChoice(null);
+                                setPosterPickerOpen(false);
+                            }}>Use the default poster</button>
+                        ) : null}
+                    </Box>
+                </Modal>
                 <div className="movie-details">
                     <div className="title">
                         <h1>{`${film == null ? '' : film.title}`}</h1>
@@ -739,6 +873,9 @@ function Movie() {
                                         poster = resizeTmdbUrl(json[user].films[j].poster);
                                     }
                                 }
+                            }
+                            if (activePosterPath) {
+                                poster = tmdbImage(activePosterPath);
                             }
 
                             json[user].reviews.push(
