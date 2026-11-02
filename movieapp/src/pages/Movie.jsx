@@ -18,6 +18,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
+import { getMovieDetails, forEachLimited, normaliseTitle } from '../util/movieDetails';
 
 const options = {
     method: 'GET',
@@ -189,6 +190,24 @@ function Movie() {
     // Movie ID
     const id = queue.get(0) == null ? 0 : queue.get(0).id;
 
+    // A logged-film entry counts as this film if it has the same TMDB id or the
+    // same name (the page finds films by title, so one film can end up logged
+    // under more than one id). Entries store title / original_title once known.
+    const currentNames = new Set(
+        [queue.get(0) == null ? '' : queue.get(0).title, queue.get(0) == null ? '' : queue.get(0).optional_title]
+            .map(normaliseTitle)
+            .filter(name => name !== '')
+    );
+    const isCurrentFilm = (entry) => {
+        if (!entry) {
+            return false;
+        }
+        if (String(entry.id) === String(id)) {
+            return true;
+        }
+        return currentNames.has(normaliseTitle(entry.title)) || currentNames.has(normaliseTitle(entry.original_title));
+    };
+
     // Get and set current user.
     if (authJson !== null && authUser !== null && user === null) {
         if (authJson[authUser.email] !== undefined) {
@@ -217,7 +236,7 @@ function Movie() {
                 }
             }
             for (let i = 0; i < json[username].films.length; i++) {
-                if (json[username].films[i].id === id) {
+                if (isCurrentFilm(json[username].films[i])) {
                     exists = true;
                     movieRating = json[username].films[i].rating;
                     break;
@@ -587,19 +606,15 @@ function Movie() {
                         redirect('/signin');
                         return;
                     }
-                    console.log('log!');
-                    const id = queue.get(0) == null ? 0 : queue.get(0).id;
-                    let exists = false;
+                    const film = queue.get(0);
+                    const id = film == null ? 0 : film.id;
+                    const exists = json[user].films.some(isCurrentFilm);
 
-                    for (let i = 0; i < json[user].films.length; i++) {
-                        if (json[user].films[i].id === id) {
-                            exists = true;
-                            break;
-                        }
-                    }
                     if (!exists) {
                         json[user].films.push({
-                            id: id
+                            id: id,
+                            title: film == null ? '' : film.title,
+                            original_title: film == null ? '' : film.optional_title
                         });
                         json[user].filmsWatched = json[user].filmsWatched + 1;
                         for (let j = 0; j < json[user].watchlist.length; j++) {
@@ -615,20 +630,42 @@ function Movie() {
                         }
                         set();
                     } else {
-                        for (let j = 0; j < json[user].films.length; j++) {
-                            if (json[user].films[j].id === id) {
-                                json[user].films.splice(j, 1);
-                                break;
-                            }
-                        }
-                        json[user].filmsWatched = json[user].filmsWatched - 1;
+                        // Unlog: remove every entry for this film from the member's
+                        // logged films, matching by id or by name.
+                        const removeMatches = () => {
+                            const before = json[user].films.length;
+                            json[user].films = json[user].films.filter(entry => !isCurrentFilm(entry));
+                            const removed = before - json[user].films.length;
+                            json[user].filmsWatched = Math.max(0, (json[user].filmsWatched || 0) - removed);
+                            return removed;
+                        };
+                        const save = () => setDoc(doc(getFirestore(app), "members", "member"), json);
+
                         setLogged('Log');
                         setWatchlist('Add to Watchlist');
-                        const set = async () => {
-                            await setDoc(doc(getFirestore(app), "members", "member"), json);
-                        }
-                        set();
                         setRating(0);
+
+                        const unlog = async () => {
+                            // Entries we can already match (same id or a stored name).
+                            removeMatches();
+                            await save();
+
+                            // Older entries were saved without a name: look their names up,
+                            // store them for next time, and remove any that are this film.
+                            const unnamed = json[user].films.filter(entry => entry && !entry.title && !entry.original_title);
+                            if (unnamed.length === 0) {
+                                return;
+                            }
+                            await forEachLimited(unnamed, 8, entry => getMovieDetails(entry.id), (details, entry) => {
+                                if (details) {
+                                    entry.title = details.title || '';
+                                    entry.original_title = details.original_title || '';
+                                }
+                            });
+                            removeMatches();
+                            await save();
+                        };
+                        unlog();
                     }
                 }}>{
                     logged
@@ -639,9 +676,11 @@ function Movie() {
                                 redirect('/signin');
                                 return;
                             }
-                            if (logged === 'Log') {
+                            if (logged === 'Log' && !json[user].films.some(isCurrentFilm)) {
                                 json[user].films.push({
-                                    id: id
+                                    id: id,
+                                    title: queue.get(0) == null ? '' : queue.get(0).title,
+                                    original_title: queue.get(0) == null ? '' : queue.get(0).optional_title
                                 });
                                 json[user].filmsWatched = json[user].filmsWatched + 1;
                                 for (let j = 0; j < json[user].watchlist.length; j++) {
@@ -654,7 +693,7 @@ function Movie() {
                                 setWatchlist('Watched');
                             }
                             for (let i = 0; i < json[user].films.length; i++) {
-                                if (json[user].films[i].id === id) {
+                                if (isCurrentFilm(json[user].films[i])) {
                                     json[user].films[i].rating = newValue;
                                     break;
                                 }

@@ -4,51 +4,47 @@ import { app } from '../FirebaseConfig';
 
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 
-import { Link } from 'react-router-dom';
-import React, { useEffect, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
+import { getMovieDetails, forEachLimited } from '../util/movieDetails';
 
-let todaysDate = new Date().toLocaleDateString().split('/');
-todaysDate = [parseInt(todaysDate[0]), parseInt(todaysDate[1]), parseInt(todaysDate[2])];
+// One star per point, plus a half star; ☰ marks a film logged without a rating.
+function ratingStars(rating) {
+    if (!(rating > 0)) {
+        return '☰';
+    }
+    return '★'.repeat(Math.floor(rating)) + (rating % 1 !== 0 ? '½' : '');
+}
 
-// 'https://api.themoviedb.org/3/movie/movie_id?language=en-US'
+// Newest release first; films without a release date go last.
+function sortByRelease(films) {
+    return films.slice().sort((a, b) => {
+        if (!a.release_date) return 1;
+        if (!b.release_date) return -1;
+        return b.release_date.localeCompare(a.release_date);
+    });
+}
 
 /**
  * FilmsWatched component:
- * This component displays the films that a user has logged. It displays the films in order of release date, and
- * displays the rating that the user gave the film. It also displays the poster for the film, and links to the
- * film's page.
+ * This component displays the films that a user has logged, newest release first, with the rating
+ * the user gave each one. Films appear as their details arrive (fetched a few at a time and cached),
+ * so a long diary starts showing straight away and one failed request no longer blanks the page.
  */
-
-const options = {
-    method: 'GET',
-    headers: {
-        accept: 'application/json',
-        Authorization: import.meta.env.VITE_TMDB_AUTH
-    }
-};
 
 function FilmsWatched () {
     // Pair programming: Pride & Amer.
-    const url = window.location.href.split('/');
-    let user = url[url.length - 2];
+    const { name: user } = useParams();
 
-    const [movies, setMovies] = useState([]);
-    // Fetch each member's films once; fetching during every render (and
-    // re-rendering when they arrived) looped forever.
-    const fetchedFor = useRef(null);
     const [json, setJSON] = useState({});
-
-    const promises = [];
+    const [films, setFilms] = useState([]);
+    const [total, setTotal] = useState(null);
+    const [failed, setFailed] = useState(0);
 
     // Get members JSON to get all the films that the user has logged.
-    // This JSON has that data.
     useEffect(() => {
         const getJSON = async () => {
-            const ref = collection(getFirestore(app), 'members');
-        
-            // await setDoc(doc(getFirestore(app), "members", "member"), json);
-        
             const querySnapshot = await getDocs(collection(getFirestore(app), "members"));
             querySnapshot.forEach((doc) => {
                 if (doc.data().test === undefined) {
@@ -59,117 +55,113 @@ function FilmsWatched () {
         getJSON();
     }, []);
 
-    // Get films by storing them into Promises that will later be used to fetch data
-    // asynchronously. Then, sort the films by release date, and display them.
-    // Use of Promises is necessary to ensure that the data is fetched before it is
-    // displayed. Use of states and hooks is necessary to ensure that the data is displayed
-    // after it is fetched.
-    if (json[user] !== undefined && fetchedFor.current !== user) {
-        fetchedFor.current = user;
-        for (let i = 0; i < json[user].films.length; i++) {
-            // TODO: Spams 404 error in console. Need fix ASAP
-            promises.push(fetch('https://api.themoviedb.org/3/movie/' + json[user].films[i].id + '?language=en-US', options).then(res => res.json()).then(json => json));
+    // Fetch each logged film's details and add them to the grid as they arrive.
+    useEffect(() => {
+        if (json[user] === undefined) {
+            return;
         }
-        const res = [];
-        const movs = [];
-        Promise.all(promises).then(results => {
-            for (let i = 0; i < results.length; i++) {
-                let release = '';
-                let poster = tmdbImage(results[i].poster_path);
-                let rating = 0;
+        let cancelled = false;
 
-                if (results[i].release_date !== undefined) {
-                    release = results[i].release_date.split('-')[0];
-                }
-                for (let j = 0; j < json[user].films.length; j++) {
-                    if (json[user].films[j].id === results[i].id) {
-                        if (json[user].films[j].poster !== undefined) {
-                            poster = resizeTmdbUrl(json[user].films[j].poster);
-                        }
-                        rating = json[user].films[j].rating;
-                    }
-                }
-                if (results[i].original_title === undefined) {
-                    continue;
-                }
-                const map = {
-                    title: results[i].original_title,
-                    rating: rating,
-                    release_date: results[i].release_date,
-                    page_title: results[i].original_title.replaceAll(' ', '-').toLowerCase() + '-' + release,
-                    poster: poster
-                }
-                res.push(map);
+        // One entry per film, even if it was logged more than once.
+        const entries = [];
+        const seen = new Set();
+        for (const film of json[user].films || []) {
+            if (!film || film.id === undefined || seen.has(String(film.id))) {
+                continue;
             }
-            res.sort((a, b) => {
-                const dateA = a.release_date.split('-'), dateB = b.release_date.split('-');
+            seen.add(String(film.id));
+            entries.push(film);
+        }
+        setFilms([]);
+        setFailed(0);
+        setTotal(entries.length);
 
-                if (parseInt(dateA[0]) < parseInt(dateB[0])) {
-                    return 1;
-                } else if (parseInt(dateA[0]) > parseInt(dateB[0])) {
-                    return -1;
-                } else {
-                    if (parseInt(dateA[1]) < parseInt(dateB[1])) {
-                        return 1;
-                    } else if (parseInt(dateA[1]) > parseInt(dateB[1])) {
-                        return -1;
-                    } else {
-                        if (parseInt(dateA[2]) < parseInt(dateB[2])) {
-                            return 1;
-                        } else if (parseInt(dateA[2]) > parseInt(dateB[2])) {
-                            return -1;
-                        } else {
-                            return 0;
-                        }
-                    }
-                }
+        // Batch arrivals into one state update every ~120 ms.
+        let buffer = [];
+        let flushTimer = null;
+        const flush = () => {
+            flushTimer = null;
+            if (cancelled || buffer.length === 0) {
+                return;
+            }
+            const arrived = buffer;
+            buffer = [];
+            setFilms(prev => sortByRelease(prev.concat(arrived)));
+        };
+
+        forEachLimited(entries, 8, entry => getMovieDetails(entry.id), (details, entry) => {
+            if (cancelled) {
+                return;
+            }
+            if (!details) {
+                setFailed(n => n + 1);
+                return;
+            }
+            const year = details.release_date ? details.release_date.split('-')[0] : '';
+            const title = details.original_title || details.title || '';
+            buffer.push({
+                id: details.id,
+                title: title,
+                release_date: details.release_date,
+                page_title: title.replaceAll(' ', '-').toLowerCase() + '-' + year,
+                poster: entry.poster !== undefined ? resizeTmdbUrl(entry.poster) : tmdbImage(details.poster_path),
+                rating: entry.rating
             });
-            for (let i = 0; i < res.length; i++) {
-                const movie = res[i];
-                let rate = '☰';
-    
-                if (movie === undefined) {
-                    continue;
-                }
-                if (movie.rating > 0) {
-                    rate = '';
-                    const rateString = '' + movie.rating;
-                    const itr = parseInt(rateString.charAt(0));
-
-                    for (let j = 0; j < itr; j++) {
-                        rate += '★';
-                    }
-                    if (movie.rating % 1 !== 0) {
-                        rate += '½';
-                    }
-                }
-                movs.push(
-                    <div className="film">
-                        <div className="film-poster">
-                            <Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>
-                        </div>
-                        <div className="stars film-rating">
-                            {rate}
-                        </div>
-                    </div>);
+            if (flushTimer === null) {
+                flushTimer = setTimeout(flush, 120);
             }
-            setMovies(movs);
+        }).then(() => {
+            if (flushTimer !== null) {
+                clearTimeout(flushTimer);
+            }
+            flush();
         });
-    }
-    
+
+        return () => {
+            cancelled = true;
+            if (flushTimer !== null) {
+                clearTimeout(flushTimer);
+            }
+        };
+    }, [json, user]);
+
+    const pending = total === null ? 0 : Math.max(0, total - films.length - failed);
+
     return (
         <div className="films-page-container">
             <div className="films-box">
                 <div className='title'>
                      <h1 className='page-title'>{`${user}'s logged films`}</h1>
+                     {total !== null ? (
+                        <p className='films-count credit'>{total === 1 ? '1 film' : `${total} films`}</p>
+                     ) : null}
                 </div>
+                {total === 0 ? (
+                    <p className='films-empty credit'>No films logged yet.</p>
+                ) : null}
                 <div className='films-posters'>
-                    <ol className='films-list poster-grid'>{movies}</ol>
+                    <ol className='films-list poster-grid'>
+                        {films.map(movie => (
+                            <div className="film" key={movie.id}>
+                                <div className="film-poster">
+                                    <Link to={`/movie/${movie.page_title}`} aria-label={movie.title}>
+                                        <img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster} alt=''></img>
+                                    </Link>
+                                </div>
+                                <div className="stars film-rating">
+                                    {ratingStars(movie.rating)}
+                                </div>
+                            </div>
+                        ))}
+                        {Array.from({ length: pending }, (_, i) => (
+                            <div className="film film--loading" key={'pending-' + i} aria-hidden="true">
+                                <div className="poster-placeholder"></div>
+                            </div>
+                        ))}
+                    </ol>
                 </div>
-
             </div>
         </div>
-
     )
 }
 export default FilmsWatched;

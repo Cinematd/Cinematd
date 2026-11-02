@@ -10,7 +10,20 @@
 }
 
 .films-page-container .title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
   margin-bottom: 36px;
+}
+
+.films-count {
+  margin: 0;
+}
+
+.films-empty {
+  font-size: var(--text-md);
 }
 
 .films-page-container .title .page-title {
@@ -28,4 +41,21 @@
   font-size: var(--text-md);
   letter-spacing: 0.12em;
   text-shadow: 0 0 10px rgba(242, 184, 75, 0.4);
+}
+
+/* Shown in place of each film still loading. */
+.poster-placeholder {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius);
+  background: var(--stage);
+  outline: 1px solid var(--rule);
+  outline-offset: -1px;
+}
+
+.film--loading::after {
+  content: '';
+  display: block;
+  min-height: 1.5em;
+  margin-top: 10px;
 }
