@@ -145,10 +145,21 @@
   filter: brightness(0.85);
 }
 
-/* Touch screens have no hover: keep the hint visible. */
+/* Touch screens have no hover: show the hint as a caption under the poster. */
 @media (hover: none) {
   .movie-poster-hint {
+    position: static;
+    display: block;
+    margin-top: 10px;
+    padding: 0;
+    transform: none;
+    background: none;
+    border: 0;
     opacity: 1;
+    font-size: var(--text-xs);
+    color: var(--dust);
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 }
 
@@ -396,8 +407,13 @@
     gap: 24px;
   }
 
-  .movie-poster {
+  .movie-poster,
+  .movie-poster-button {
     width: 150px;
+  }
+
+  .movie-poster-button .movie-poster {
+    width: 100%;
   }
 
   .movie-details {

@@ -1,0 +1,285 @@
+/*
+ * Film info drawer (Movie page): cast, crew and details in a panel on the
+ * right of the screen, set like the cast and crew pages of a script.
+ */
+
+.film-info-panel {
+  position: fixed;
+  top: var(--nav-h);
+  right: 0;
+  bottom: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 92vw);
+  background: var(--stage);
+  border-left: 3px double var(--rule-strong);
+  box-shadow: -30px 0 60px rgba(0, 0, 0, 0.6);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform 0.35s var(--ease-screen), visibility 0s linear 0.35s;
+}
+
+.film-info-panel.is-open {
+  transform: translateX(0);
+  visibility: visible;
+  transition: transform 0.35s var(--ease-screen), visibility 0s;
+}
+
+/* Invisible strip along the right edge that opens the drawer on hover. */
+.film-info-edge {
+  position: fixed;
+  top: var(--nav-h);
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  width: 24px;
+}
+
+/* Visible tab on the right edge (desktop). */
+.film-info-tab {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  z-index: 85;
+  padding: 18px 9px;
+  background: var(--stage);
+  border: 1px solid var(--rule-strong);
+  border-right: 0;
+  border-radius: 2px 0 0 2px;
+  color: var(--silver);
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  transform: translateY(-50%) rotate(180deg);
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.film-info-tab:hover {
+  background: var(--stage-raised);
+}
+
+.film-info-tab.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Menu button (phones and touch screens). */
+.film-info-menu {
+  display: none;
+  position: fixed;
+  top: calc(var(--nav-h) + 12px);
+  right: 12px;
+  z-index: 85;
+  width: 44px;
+  height: 44px;
+  padding: 12px 11px;
+  flex-direction: column;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+}
+
+.film-info-menu span {
+  display: block;
+  height: 1.5px;
+  background: var(--silver);
+}
+
+.film-info-menu.is-hidden {
+  visibility: hidden;
+}
+
+.film-info-backdrop {
+  position: fixed;
+  inset: var(--nav-h) 0 0 0;
+  z-index: 89;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+/* On phones the drawer covers the page, so dim what's behind it. */
+@media (hover: none), (max-width: 760px) {
+  .film-info-tab,
+  .film-info-edge {
+    display: none;
+  }
+
+  .film-info-menu {
+    display: flex;
+  }
+
+  .film-info-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* ---------- Contents ---------- */
+
+.film-info-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 14px;
+}
+
+.film-info-title {
+  font-size: var(--text-lg);
+  line-height: 1.2;
+  outline: none;
+}
+
+.film-info-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--silver);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.film-info-close:hover {
+  border-color: var(--silver);
+}
+
+.film-info-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.film-info-tabbutton {
+  padding: 10px 12px;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  color: var(--dust);
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.film-info-tabbutton:hover {
+  color: var(--silver);
+}
+
+.film-info-tabbutton.is-active {
+  color: var(--silver);
+  border-bottom-color: var(--tungsten);
+}
+
+.film-info-body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 24px 40px;
+}
+
+.film-info-empty {
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  color: var(--dust);
+}
+
+/* Cast: photo, name, and the character in the screenplay face. */
+.film-info-cast {
+  display: grid;
+  gap: 14px;
+}
+
+.film-info-person {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.film-info-person img {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--stage-raised);
+  box-shadow: 0 0 0 1px var(--rule-strong);
+}
+
+.film-info-name {
+  font-size: var(--text-sm);
+  color: var(--silver);
+}
+
+.film-info-role {
+  font-family: var(--script);
+  font-size: var(--text-xs);
+  color: var(--dust);
+}
+
+.film-info-more {
+  margin-top: 20px;
+}
+
+/* Crew and details: label on the left, value on the right. */
+.film-info-dept + .film-info-dept {
+  margin-top: 26px;
+}
+
+.film-info-dept-name {
+  margin-bottom: 10px;
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--silver);
+}
+
+.film-info-rows {
+  margin: 0;
+}
+
+.film-info-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.film-info-row dt {
+  font-family: var(--script);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--dust);
+}
+
+.film-info-row dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--silver);
+}
+
+.film-info-tagline {
+  margin-bottom: 18px;
+  font-family: var(--script);
+  font-size: var(--text-md);
+  color: var(--silver);
+}
+
+.film-info-tagline::before { content: '"'; }
+.film-info-tagline::after { content: '"'; }

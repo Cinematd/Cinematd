@@ -9,6 +9,7 @@ import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firesto
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import Footer from '../Footer';
+import FilmInfoPanel from './FilmInfoPanel';
 
 import StarIcon from '@mui/icons-material/Star';
 import TextField from '@mui/material/TextField';
@@ -900,6 +901,8 @@ function Movie() {
             </div>
                 </div>
             </div>
+
+            <FilmInfoPanel filmId={id} title={film == null ? '' : film.title} />
 
             <Footer />
         </div>
