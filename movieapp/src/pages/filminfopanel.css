@@ -283,3 +283,31 @@
 
 .film-info-tagline::before { content: '"'; }
 .film-info-tagline::after { content: '"'; }
+
+/* Releases */
+.film-info-sub {
+  display: block;
+  font-family: var(--script);
+  font-size: var(--text-xs);
+  color: var(--dust);
+}
+
+.film-info-tba {
+  font-family: var(--script);
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--dust);
+}
+
+@media (max-width: 420px) {
+  .film-info-tabs {
+    gap: 0;
+    padding: 0 14px;
+  }
+
+  .film-info-tabbutton {
+    padding: 10px 8px;
+    font-size: var(--text-xs);
+  }
+}

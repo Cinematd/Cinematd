@@ -63,6 +63,44 @@ function groupCrew(crew) {
         .map(([name, people]) => ({ name, people: [...people.values()] }));
 }
 
+// Country name from an ISO 3166-1 code ("US" -> "United States").
+const regionNames = typeof Intl !== 'undefined' && Intl.DisplayNames ? new Intl.DisplayNames(['en'], { type: 'region' }) : null;
+function countryName(code) {
+    try {
+        return (regionNames && regionNames.of(code)) || code;
+    } catch (e) {
+        return code;
+    }
+}
+
+// TMDB release types: 1 Premiere, 2 Theatrical (limited), 3 Theatrical,
+// 4 Digital, 5 Physical, 6 TV. Festival screenings are listed as premieres,
+// usually with the festival's name in the note.
+function releasesOf(details) {
+    const festival = [];
+    const theatrical = [];
+    const results = details && details.release_dates ? details.release_dates.results || [] : [];
+    for (const country of results) {
+        for (const release of country.release_dates || []) {
+            const entry = {
+                key: country.iso_3166_1 + release.type + release.release_date + (release.note || ''),
+                date: release.release_date ? release.release_date.slice(0, 10) : '',
+                country: countryName(country.iso_3166_1),
+                note: release.note || '',
+                certification: release.certification || '',
+                limited: release.type === 2
+            };
+            if (release.type === 1) {
+                festival.push(entry);
+            } else if (release.type === 2 || release.type === 3) {
+                theatrical.push(entry);
+            }
+        }
+    }
+    const byDate = (a, b) => (a.date || '9999').localeCompare(b.date || '9999') || a.country.localeCompare(b.country);
+    return { festival: festival.sort(byDate), theatrical: theatrical.sort(byDate) };
+}
+
 // US certification (PG-13, R, ...) from release_dates, if TMDB has one.
 function usCertification(details) {
     const results = details && details.release_dates ? details.release_dates.results : [];
@@ -200,7 +238,9 @@ export default function FilmInfoPanel({ filmId, title }) {
         ['Status', details.status],
     ].filter(([, value]) => value) : [];
 
-    const tabs = [['cast', 'Cast'], ['crew', 'Crew'], ['details', 'Details']];
+    const releases = details ? releasesOf(details) : { festival: [], theatrical: [] };
+
+    const tabs = [['cast', 'Cast'], ['crew', 'Crew'], ['details', 'Details'], ['releases', 'Releases']];
 
     return (
         <>
@@ -327,6 +367,49 @@ export default function FilmInfoPanel({ filmId, title }) {
                                     </div>
                                 ))}
                             </dl>
+                        </section>
+                    ) : null}
+
+                    {credits && details && tab === 'releases' ? (
+                        <section id="film-info-section-releases" role="tabpanel" aria-labelledby="film-info-tab-releases">
+                            <div className="film-info-dept">
+                                <h3 className="film-info-dept-name">Festivals and premieres</h3>
+                                {releases.festival.length === 0 ? (
+                                    <p className="film-info-tba">TBA</p>
+                                ) : (
+                                    <dl className="film-info-rows">
+                                        {releases.festival.map(r => (
+                                            <div key={r.key} className="film-info-row">
+                                                <dt>{r.date ? formatDate(r.date) : 'TBA'}</dt>
+                                                {/* The festival's name (TMDB's note); TBA if TMDB doesn't name it. */}
+                                                <dd>{r.note || 'TBA'}</dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+                                )}
+                            </div>
+                            <div className="film-info-dept">
+                                <h3 className="film-info-dept-name">In theatres</h3>
+                                {releases.theatrical.length === 0 ? (
+                                    <p className="film-info-tba">TBA</p>
+                                ) : (
+                                    <dl className="film-info-rows">
+                                        {releases.theatrical.map(r => (
+                                            <div key={r.key} className="film-info-row">
+                                                <dt>{r.date ? formatDate(r.date) : 'TBA'}</dt>
+                                                <dd>
+                                                    {r.country}
+                                                    {r.limited || r.certification || r.note ? (
+                                                        <span className="film-info-sub">
+                                                            {[r.limited ? 'Limited' : '', r.certification ? 'Rated ' + r.certification : '', r.note].filter(Boolean).join(', ')}
+                                                        </span>
+                                                    ) : null}
+                                                </dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+                                )}
+                            </div>
                         </section>
                     ) : null}
                 </div>
