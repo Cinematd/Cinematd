@@ -1,7 +1,7 @@
 import "./moviespagestyle.css";
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 // import MovieCache from '../util/MovieCache';
@@ -126,6 +126,36 @@ function link(i) {
 }
 
 /**
+ * Films page filters live in the URL path, after the hash (the site uses
+ * hash routing so it works on GitHub Pages):
+ *   #/films[/upcoming][/<genre>[/<popularity>[/<decade>]]]
+ * e.g. #/films/action, #/films/all/popularity-asc/1990s, #/films/upcoming/drama
+ * "all" and "popularity-desc" are the defaults and are left off the end.
+ */
+export function parseFilmsPath(pathname) {
+    const rest = pathname.split('/').filter(Boolean).slice(1);
+    const upcoming = rest[0] === 'upcoming';
+    if (upcoming) {
+        rest.shift();
+    }
+    return {
+        upcoming: upcoming,
+        genre: rest[0] && rest[0] !== 'all' ? rest[0] : '',
+        popularity: rest[1] === 'popularity-asc' ? 'popularity-asc' : 'popularity-desc',
+        decade: rest[2] || ''
+    };
+}
+
+export function buildFilmsPath({ upcoming, genre, popularity, decade }) {
+    const defaults = ['all', 'popularity-desc', ''];
+    const tail = [genre || 'all', popularity || 'popularity-desc', upcoming ? '' : (decade || '')];
+    while (tail.length > 0 && tail[tail.length - 1] === defaults[tail.length - 1]) {
+        tail.pop();
+    }
+    return '/' + ['films'].concat(upcoming ? ['upcoming'] : [], tail).join('/');
+}
+
+/**
  * MoviesPage component:
  * This component handles the movies page. It handles the displaying of all movies based on
  * what the user's URL is. It also handles the filtering of movies based on genre, decade,
@@ -138,6 +168,13 @@ function MoviesPage() {
     // const [firstResults, setFirstResults] = useState([])
     // const [secondResults, setSecondResults] = useState([])
     // const [thirdResults, setThirdResults] = useState([])
+
+    const location = useLocation();
+    const navigate = useNavigate();
+    // Changes one filter and keeps the others, e.g. genre -> #/films/<genre>.
+    const changeFilter = (change) => {
+        navigate(buildFilmsPath({ ...parseFilmsPath(location.pathname), ...change }));
+    };
 
     const [results, setResults] = useState([]);
     const [pagesLoaded, setPagesLoaded] = useState(0);
@@ -388,70 +425,20 @@ function MoviesPage() {
                         
                         <label className='genre-order'>
                             <span>Genre</span>
-                            <select className='genre-dropdown' onChange={(e) => { 
-                                if (e.target.value === '') {
-                                    if (window.location.href.split('/').length > 4) {
-                                        let idx = 4;
-                                        if (window.location.href.includes('upcoming')) {
-                                            idx = 5;
-                                        }
-                                        window.location.assign(window.location.href.replace(window.location.href.split('/')[idx], 'all'));
-                                    } else {
-                                        window.location.assign('/films');
-                                    }
-                                } else if (window.location.href.includes('popularity-desc') || window.location.href.includes('popularity-asc')) {
-                                    let idx = 4;
-                                    if (window.location.href.includes('upcoming')) {
-                                        idx = 5;
-                                    }
-                                    window.location.assign(window.location.href.replace(window.location.href.split('/')[idx], e.target.value.toLowerCase()));
-                                } else if (window.location.href.includes('upcoming') && !(window.location.href.includes('popularity-desc') || window.location.href.includes('popularity-asc'))) {
-                                    window.location.assign(window.location.href + '/' + e.target.value.toLowerCase());
-                                } else {
-                                    window.location.assign('/films/' + e.target.value.toLowerCase());
-                                }
-                                }}>
+                            <select className='genre-dropdown' onChange={(e) => changeFilter({ genre: e.target.value })}>
                                 {filters}
                                 {/* Add more genre options */}
                             </select>
                         </label>
                         <label className='popularity-order'>
                             <span>Popularity</span>
-                            <select className='popularity-dropdown' onChange={(e) => {
-                                if (window.location.href.includes('popularity-desc')) {
-                                    window.location.assign(window.location.href.replace('popularity-desc', e.target.value));
-                                } else if (window.location.href.includes('popularity-asc')) {
-                                    window.location.assign(window.location.href.replace('popularity-asc', e.target.value));
-                                } else {
-                                    if (window.location.href.split('/').length === 4) {
-                                        window.location.assign(window.location.href + '/all/' + e.target.value);
-                                    } else {
-                                        window.location.assign(window.location.href + '/' + e.target.value);
-                                    }
-                                }
-                            }}>
+                            <select className='popularity-dropdown' onChange={(e) => changeFilter({ popularity: e.target.value })}>
                                 {pOrder}
                             </select>
                         </label>
                         <label className='decade-order'>
                             <span>Decade</span>
-                            <select className='decade-dropdown' onChange={(e) => {
-                                if (e.target.value === '') {
-                                    let path = window.location.href.replace(window.location.href.split('/')[6], '');
-                                    path = path.substring(0, path.length - 1);
-                                    window.location.assign(path);
-                                } else if (window.location.href.split('/').length === 7) {
-                                    window.location.assign(window.location.href.replace(window.location.href.split('/')[6], e.target.value));
-                                } else {
-                                    if (window.location.href.split('/').length === 4) {
-                                        window.location.assign(window.location.href + '/all/popularity-desc/' + e.target.value);
-                                    } else if (window.location.href.split('/').length === 6) {
-                                        window.location.assign(window.location.href + '/' + e.target.value);
-                                    } else {
-                                        window.location.assign(window.location.href + '/popularity-desc/' + e.target.value);
-                                    }
-                                }
-                            }}>
+                            <select className='decade-dropdown' onChange={(e) => changeFilter({ decade: e.target.value })}>
                                 {rOrder}
                             </select>
                         </label>
@@ -484,4 +471,11 @@ function MoviesPage() {
     );
 }
 
-export default MoviesPage;
+// Changing a filter changes the URL path; remount the page so it reads the
+// new filters and fetches the matching films.
+function MoviesPageRoute() {
+    const location = useLocation();
+    return <MoviesPage key={location.pathname} />;
+}
+
+export default MoviesPageRoute;
