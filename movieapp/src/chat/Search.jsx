@@ -4,6 +4,7 @@ import { db,app } from "../FirebaseConfig";
 import { getFirestore } from "firebase/firestore";
 import { AuthContext } from "../context/AuthContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getAvatarURL } from '../util/avatar';
 
 /**
  * Search component:
@@ -31,15 +32,7 @@ const Search = () => {
             querySnapshot.forEach((doc) => {
                 // console.log(doc.data().username);
                 if (doc.data().username !== undefined && doc.data().username === username && doc.id !== authUser.uid) {
-                    const storage = getStorage();
-                    const avatarRef = ref(storage, `avatars/${doc.id}`);
-
-                    getDownloadURL(avatarRef)
-                        .then((url) => {
-                            setAvatarURL(url);
-                        }).catch((err)=> {
-                            console.log(err)
-                    });
+                    getAvatarURL(doc.id).then((url) => setAvatarURL(url));
 
                     setErr(false);
                     setName(doc.data().username);

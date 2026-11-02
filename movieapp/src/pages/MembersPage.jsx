@@ -7,6 +7,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import { getAvatarURL } from '../util/avatar';
 
 /**
  * MembersPage component:
@@ -34,13 +35,11 @@ function MembersPage() {
                 for (let i = 0; i < authJson.usernames.length; i++) {
                     const member = authJson.usernames[i];
 
-                    const storage = getStorage();
-                    const avatarRef = ref(storage, `avatars/${member.uid}`);
-                    
-                    promises.push(getDownloadURL(avatarRef).then((url) => {
+                    // Always list the member; fall back to a default avatar if theirs can't load.
+                    promises.push(getAvatarURL(member.uid).then((url) => {
                         membersList.push(
                             <div className="member-acc-block">
-                                <Link to={`/profile/${member.username}`}><img className="member-avatars" src={url}></img></Link>
+                                <Link to={`/profile/${member.username}`}><img loading="lazy" decoding="async" className="member-avatars" src={url}></img></Link>
                                 <div className="member-user">
                                     <Link className='username-link' to={`/profile/${member.username}`}><h2>{member.username}</h2></Link>
                                 </div>
@@ -53,7 +52,7 @@ function MembersPage() {
             });
         }
         getAuthJSON();
-    }, {});
+    }, []);
 
     // Render the members page.
     return (

@@ -2,15 +2,13 @@ import './moviereviewpage.css';
 
 import { app } from "../FirebaseConfig";
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
 
 import Rating from '@mui/material/Rating';
+import { resizeTmdbUrl } from '../util/tmdb';
 
 /**
  * MovieReviewPage component:
@@ -37,7 +35,7 @@ function MovieReviewPage() {
             });
         }
         getJSON();
-    }, {});
+    }, []);
 
     // Set the reviews. We also want to set the path to the movie page so that we can link to it.
     if (!updated) {
@@ -52,7 +50,7 @@ function MovieReviewPage() {
                         reviewList.push(
                             <Link className="review-link" to={`/review/${review.reviewId}`}>
                                 <div className="review">
-                                    <img className="movie-posters" src={review.poster}></img>
+                                    <img className="movie-posters" src={resizeTmdbUrl(review.poster)} alt="" loading="lazy" decoding="async"></img>
                                     <div className="review-information">
                                         <h2>{`${review.title} (${review.year})`}</h2>
                                         <div className="review-date">

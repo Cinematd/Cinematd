@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import { getFirestore, collection, getDocs, setDoc, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { getAvatarURL } from '../util/avatar';
 
 /**
  * Chats component:
@@ -51,7 +52,7 @@ const Chats = () => {
             });
         }
         getJSON();
-    }, {});
+    }, []);
 
     // Get authentications JSON
     useEffect(() => {
@@ -66,7 +67,7 @@ const Chats = () => {
             });
         }
         getAuthJSON();
-    }, {});
+    }, []);
 
     // Setting all user information
     if (authUser !== null && authJSON !== null && json !== null && !started) {
@@ -82,10 +83,8 @@ const Chats = () => {
                             const addToChatSidebar = async () => {
                                 for (let j = 0; j < authJSON.usernames.length; j++) {
                                     if (authJSON.usernames[j].username === friends[i]) {
-                                        const storage = getStorage();
-                                        const avatarRef = ref(storage, `avatars/${authJSON.usernames[j].uid}`);
-
-                                        await getDownloadURL(avatarRef)
+                                        // Falls back to a default avatar if theirs can't load.
+                                        await getAvatarURL(authJSON.usernames[j].uid)
                                             .then((url) => {
                                                 chatFriends.push(
                                                     <div className="userChat" onClick={() => {

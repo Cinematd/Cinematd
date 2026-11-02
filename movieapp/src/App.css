@@ -67,11 +67,9 @@
   gap: 4px;
   max-width: 320px;
   padding: 12px 16px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.72);
   border: 1px solid var(--rule);
   border-radius: 2px;
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
   animation: title-card 0.8s ease 1.4s both;
   transition: border-color 0.2s ease;
 }

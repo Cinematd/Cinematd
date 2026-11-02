@@ -7,6 +7,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import { getAvatarURL } from '../util/avatar';
 
 /**
  * FollowingPage component:
@@ -36,7 +37,7 @@ function FollowingPage() {
             });
         }
         getJSON();
-    }, {});
+    }, []);
 
     // Get authentications JSON
     useEffect(() => {
@@ -53,7 +54,7 @@ function FollowingPage() {
             });
         }
         getAuthJSON();
-    }, {});
+    }, []);
 
     // State changes to update the avatar, username, and friends.
     // Updates the hook for friends, then it re-renders below at
@@ -73,14 +74,12 @@ function FollowingPage() {
                                 if (authJson !== null && authJson.usernames !== undefined) {
                                     for (let j = 0; j < authJson.usernames.length; j++) {
                                         if (authJson.usernames[j].username === following) {
-                                            const storage = getStorage();
-                                            const avatarRef = ref(storage, `avatars/${authJson.usernames[j].uid}`);
-                                            
-                                            await getDownloadURL(avatarRef)
+                                            // Falls back to a default avatar if theirs can't load.
+                                            await getAvatarURL(authJson.usernames[j].uid)
                                                 .then((url) => {
                                                     friendList.push(
                                                         <div className="following-acc-block">
-                                                            <Link to={`/profile/${following}`}><img className="following-avatars" src={url}></img></Link>
+                                                            <Link to={`/profile/${following}`}><img loading="lazy" decoding="async" className="following-avatars" src={url}></img></Link>
                                                             <div className="following-user">
                                                                 <Link className='username-link' to={`/profile/${following}`}><h2>{following}</h2></Link>
                                                             </div>

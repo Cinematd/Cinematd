@@ -11,13 +11,11 @@ import { FiArrowRight } from "react-icons/fi";
 
 import { app } from "../FirebaseConfig";
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
 
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
+import { resizeTmdbUrl } from '../util/tmdb';
 
 /**
  * IndividualReviewPage component:
@@ -45,7 +43,7 @@ function IndividualReviewPage() {
             });
         }
         getJSON();
-    }, {});
+    }, []);
 
     // Set the review. We also want to set the path to the movie page so that we can link to it.
     if (json !== null && !updated) {
@@ -69,7 +67,7 @@ function IndividualReviewPage() {
         <div className="moviereviewcontainer">
                 <div className="reviewsection">
                 <div className="review">
-                    <Link to={path}><img className="review-movie-posters" src={review.poster}></img></Link>
+                    <Link to={path}><img className="review-movie-posters" src={resizeTmdbUrl(review.poster)} alt="" loading="lazy" decoding="async"></img></Link>
                     <div className="review-informationss">
                         <h2>{`${review.title} (${review.year})`}</h2>
                         <div className="the-review-date">

@@ -1,7 +1,8 @@
 import "./moviespagestyle.css";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 // import MovieCache from '../util/MovieCache';
 
@@ -138,14 +139,55 @@ function MoviesPage() {
     // const [secondResults, setSecondResults] = useState([])
     // const [thirdResults, setThirdResults] = useState([])
 
-    const promises = [];
     const [results, setResults] = useState([]);
-    const [movies, setMovies] = useState([]);
+    const [pagesLoaded, setPagesLoaded] = useState(0);
+    const [loadingPages, setLoadingPages] = useState(false);
+    const queryTimer = useRef(null);
     const [filters, setFilters] = useState([]);
     const [pOrder, setPopularityOrder] = useState([]);
     const [rOrder, setReleaseOrder] = useState([]);
     const [movieIndex, setMovieIndex] = useState(0);
     const [queryBox, setQueryBox] = useState(<div></div>);
+
+    // TMDB returns 20 films per page. Instead of requesting 50 pages (1,000
+    // films) up front, load a few pages and fetch more as "Load more" needs them.
+    const INITIAL_PAGES = 3;
+    const PAGE_BATCH = 3;
+    const PAGE_SIZE = 30;
+
+    const toFilm = (movie) => {
+        let release = '';
+        if (movie.release_date !== undefined) {
+            release = movie.release_date.split('-')[0];
+        }
+        return {
+            title: movie.original_title,
+            year: release,
+            page_title: movie.original_title.replaceAll(' ', '-').toLowerCase() + '-' + release,
+            poster: tmdbImage(movie.poster_path),
+            id: movie.id
+        };
+    };
+
+    const fetchPages = (from, to) => {
+        setLoadingPages(true);
+        const requests = [];
+        for (let i = from; i <= to; i++) {
+            requests.push(fetch(link(i), options)
+                .then(res => res.json())
+                .then(json => json.results || [])
+                .catch(() => []));
+        }
+        return Promise.all(requests).then(pages => {
+            const fetched = pages.flat().map(toFilm);
+            setResults(prev => {
+                const seen = new Set(prev.map(film => film.id));
+                return prev.concat(fetched.filter(film => !seen.has(film.id)));
+            });
+            setPagesLoaded(to);
+            setLoadingPages(false);
+        });
+    };
 
     // Setting up filters and fetching data.
     useEffect(() => {
@@ -210,53 +252,8 @@ function MoviesPage() {
         }
 
         // Data access fetches.
-        // We get data from the first 50 pages here.
-        for (let i = 1; i < 51; i++) {
-            promises.push(fetch(link(i), options).then(res => res.json()).then(json => json.results));
-        }
-        // Get results of all the fetches and set that data.
-        const res = [];
-        Promise.all(promises).then(results => {
-            for (let i = 0; i < results.length; i++) {
-                for (let j = 0; j < results[i].length; j++) {
-                    let release = '';
-                    if (results[i][j].release_date !== undefined) {
-                        release = results[i][j].release_date.split('-')[0];
-                    }
-                    const map = {
-                        title: results[i][j].original_title,
-                        year: release,
-                        page_title: results[i][j].original_title.replaceAll(' ', '-').toLowerCase() + '-' + release,
-                        poster: 'https://image.tmdb.org/t/p/original' + results[i][j].poster_path,
-                        id: results[i][j].id
-                    }
-                    res.push(map);
-                }
-            }
-            for (let i = 0; i < 30; i++) {
-                const movie = res[i];
-
-                if (movie === undefined) {
-                    continue;
-                }
-                movies.push(<Link key={movie.id} to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster} alt=''></img><span className='poster-caption'>{movie.title}<span className='poster-year'>{movie.year}</span></span></Link>);
-            }
-            setMovies(movies);
-            setResults(res);
-        });
+        fetchPages(1, INITIAL_PAGES);
     }, []);
-
-    // When the user clicks the "Load more" button, we want to load more movies.
-    if (movieIndex > 0) {
-        for (let i = movieIndex; i < movieIndex + 30; i++) {
-            const movie = results[i];
-
-            if (movie === undefined) {
-                continue;
-            }
-            movies.push(<Link key={movie.id} to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster} alt=''></img><span className='poster-caption'>{movie.title}<span className='poster-year'>{movie.year}</span></span></Link>);
-        }
-    }
 
     // Query function. This is for the search bar.
     // We want to query the TMDB API for movies that match the keywords for the
@@ -286,7 +283,7 @@ function MoviesPage() {
                             title: movie.original_title,
                             year: year,
                             page_title: movie.original_title.replaceAll(' ', '-').toLowerCase() + '-' + movie.release_date.split('-')[0],
-                            poster: 'https://image.tmdb.org/t/p/original' + movie.poster_path,
+                            poster: tmdbImage(movie.poster_path, 'w185'),
                             id: movie.id
                         }
                         if (i === count) {
@@ -304,7 +301,7 @@ function MoviesPage() {
                         }
                         queriedResults.push(<Link to={`/movie/${movie.page_title}`}>
                                 <div className='queried-result'>
-                                    <img className='queried-result-img' src={movie.poster}/>
+                                    <img loading='lazy' decoding='async' className='queried-result-img' src={movie.poster}/>
                                     <p className='queried-result-title'>
                                         {`${movie.title} ${movie.year}`}
                                     </p>
@@ -376,7 +373,10 @@ function MoviesPage() {
                     <div className="filters">
                         <div className="search-box">
                             <input type="search" aria-label="Search films" placeholder="Search films" onChange={(e) => {
-                                query(e.target.value);
+                                // Wait until typing pauses before searching TMDB.
+                                const value = e.target.value;
+                                clearTimeout(queryTimer.current);
+                                queryTimer.current = setTimeout(() => query(value), 250);
                             }} onClick={
                                 () => {
                                     console.log("ABORT");
@@ -458,10 +458,24 @@ function MoviesPage() {
                     </div>
                 </div>
                 <div className="movieposters">
-                    <ol className="poster-grid">{movies}</ol>
+                    <ol className="poster-grid">
+                        {results.slice(0, PAGE_SIZE + movieIndex).map(movie => (
+                            <Link key={movie.id} to={`/movie/${movie.page_title}`}>
+                                <img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster} alt=''></img>
+                                <span className='poster-caption'>{movie.title}<span className='poster-year'>{movie.year}</span></span>
+                            </Link>
+                        ))}
+                    </ol>
                 </div>
                 <div className="expand-button">
-                    <button onClick={() => setMovieIndex(movieIndex + 30)} className="expand btn-ghost">
+                    <button onClick={() => {
+                        const next = movieIndex + PAGE_SIZE;
+                        setMovieIndex(next);
+                        // Keep a page of films ready beyond what's shown.
+                        if (!loadingPages && results.length < PAGE_SIZE * 2 + next) {
+                            fetchPages(pagesLoaded + 1, pagesLoaded + PAGE_BATCH);
+                        }
+                    }} className="expand btn-ghost">
                         Load more
                     </button>
                 </div>

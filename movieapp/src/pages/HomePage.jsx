@@ -2,9 +2,10 @@ import '../App.css';
 
 import MovieQueue from '../util/MovieQueue';
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '../Footer';
+import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 const upcomingUrl = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1';
 
@@ -37,6 +38,7 @@ const Home = () => {
   const [banner, setBanner] = useState('')
   const [title, setTitle] = useState({});
   const [bannerName, setBannerName] = useState('');
+  const bannerRequested = useRef(false);
 
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -91,16 +93,18 @@ const Home = () => {
       page_title: lowercase,
       description: result.overview,
       release: result.release_date,
-      poster: 'https://image.tmdb.org/t/p/original' + result.poster_path,
+      poster: tmdbImage(result.poster_path),
       backdrop: result.backdrop_path
     };
     queue.enqueue(map);
   }
   // queue.sort();
 
-  // Set the banner to a random movie from the queue.
+  // Set the banner to a random movie from the queue, once the upcoming
+  // films have arrived (not on every render).
   useEffect(() => {
-    if (banner === '') {
+    if (banner === '' && queue.length > 0 && !bannerRequested.current) {
+      bannerRequested.current = true;
       const random = Math.floor(Math.random() * queue.length);
       const id = queue.get(random) == null ? 0 : queue.get(random).id;
       const title = queue.get(random) == null ? '' : queue.get(random).page_title;
@@ -123,13 +127,13 @@ const Home = () => {
         })
         .catch(err => console.error('error:' + err));
     }
-  });
+  }, [results]);
 
   // A single poster in one of the home page rows, captioned with title and year.
   const posterLink = (movie, key) => (
     <li key={key}>
       <Link to={`/movie/${movie == null ? '' : movie.page_title}`}>
-        <img className='MovieImage-size' src={movie == null ? '' : movie.poster} alt=''></img>
+        <img loading='lazy' decoding='async' className='MovieImage-size' src={movie == null ? '' : movie.poster} alt=''></img>
         <span className="poster-caption">
           {movie == null ? '' : movie.title}
           <span className="poster-year">{movie == null ? '' : movie.release.split('-')[0]}</span>
@@ -176,10 +180,10 @@ const Home = () => {
           <h2>Movie of the day</h2>
         </div>
         <div className="movie-of-the-day-container lobby-card">
-          <div className="motd-still" style={{backgroundImage: "url(" + 'https://www.themoviedb.org/t/p/w1280/7HR38hMBl23lf38MAN63y4pKsHz.jpg' + ")"}}></div>
+          <div className="motd-still" style={{backgroundImage: "url(" + tmdbImage('/7HR38hMBl23lf38MAN63y4pKsHz.jpg', 'w1280') + ")"}}></div>
           <div className='content-motd'>
             <Link to={`/movie/past-lives-2023`} className="motd-poster-link">
-              <img className='movie-of-the-day-poster' src={'https://image.tmdb.org/t/p/original/k3waqVXSnvCZWfJYNtdamTgTtTA.jpg'} alt='Past Lives poster'></img>
+              <img className='movie-of-the-day-poster' src={tmdbImage('/k3waqVXSnvCZWfJYNtdamTgTtTA.jpg')} alt='Past Lives poster'></img>
             </Link>
             <div className="motd-text">
               <h3 className="movie-of-the-day-title">Past Lives</h3>
@@ -200,7 +204,7 @@ const Home = () => {
           {trendingMovies.map((movie) => (
             <li key={movie.id}>
               <Link to={`/movie/${movie.original_title.replaceAll(' ', '-').toLowerCase() + '-' + movie.release_date.split('-')[0]}`}>
-                <img className='MovieImage-size' src={`https://image.tmdb.org/t/p/original${movie.poster_path}`} alt='' />
+                <img loading='lazy' decoding='async' className='MovieImage-size' src={tmdbImage(movie.poster_path)} alt='' />
                 <span className="poster-caption">
                   {movie.title ? movie.title : movie.original_title}
                   <span className="poster-year">{movie.release_date ? movie.release_date.split('-')[0] : ''}</span>
@@ -262,7 +266,7 @@ const UpcomingMovies = () => {
           page_title: lowercase,
           description: result.overview,
           release: result.release_date,
-          poster: 'https://image.tmdb.org/t/p/original' + result.poster_path,
+          poster: tmdbImage(result.poster_path),
           backdrop: result.backdrop_path,
           popularity: result.popularity
       };
@@ -282,23 +286,23 @@ const UpcomingMovies = () => {
   //             </div>
   //             <div className="UpcomingMovies-images">
   //                 <Link to={`/movie/${queue.get(0) == null ? '' : queue.get(0).page_title}`}>
-  //                     <img className='MovieImage-size' src={queue.get(0) == null ? '' : queue.get(0).poster} alt=''></img>
+  //                     <img loading='lazy' decoding='async' className='MovieImage-size' src={queue.get(0) == null ? '' : queue.get(0).poster} alt=''></img>
   //                 </Link>
 
   //                 <Link to={`/movie/${queue.get(1) == null ? '' : queue.get(1).page_title}`}>
-  //                     <img className='MovieImage-size'src={queue.get(1) == null ? '' : queue.get(1).poster} alt=''></img>
+  //                     <img loading='lazy' decoding='async' className='MovieImage-size'src={queue.get(1) == null ? '' : queue.get(1).poster} alt=''></img>
   //                 </Link>
 
   //                 <Link to={`/movie/${queue.get(2) == null ? '' : queue.get(2).page_title}`}>
-  //                     <img className='MovieImage-size'src={queue.get(2) == null ? '' : queue.get(2).poster} alt=''></img>
+  //                     <img loading='lazy' decoding='async' className='MovieImage-size'src={queue.get(2) == null ? '' : queue.get(2).poster} alt=''></img>
   //                 </Link>
 
   //                 <Link to={`/movie/${queue.get(3) == null ? '' : queue.get(3).page_title}`}>
-  //                     <img className='MovieImage-size'src={queue.get(3) == null ? '' : queue.get(3).poster} alt=''></img>
+  //                     <img loading='lazy' decoding='async' className='MovieImage-size'src={queue.get(3) == null ? '' : queue.get(3).poster} alt=''></img>
   //                 </Link>
 
   //                 <Link to={`/movie/${queue.get(4) == null ? '' : queue.get(4).page_title}`}>
-  //                     <img className='MovieImage-size'src={queue.get(4) == null ? '' : queue.get(4).poster} alt=''></img>
+  //                     <img loading='lazy' decoding='async' className='MovieImage-size'src={queue.get(4) == null ? '' : queue.get(4).poster} alt=''></img>
   //                 </Link>
 
   //         </div>

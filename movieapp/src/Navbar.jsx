@@ -4,7 +4,6 @@ import { Link, useMatch, useResolvedPath, useNavigate } from "react-router-dom" 
 import { onAuthStateChanged } from "firebase/auth";
 import React, { useEffect, useState } from "react";
 import { auth, app } from "./FirebaseConfig";
-import firebase from 'firebase/compat/app';
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 /**

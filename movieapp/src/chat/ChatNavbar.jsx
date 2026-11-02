@@ -32,7 +32,7 @@ const ChatNavbar = () => {
             });
         }
         getAuthJSON();
-    }, {});
+    }, []);
 
     // Set display
     if (authUser !== null && authJson !== null) {

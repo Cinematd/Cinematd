@@ -1,6 +1,8 @@
-// Bootstrap first, then our design system, then the app (whose page
-// stylesheets load last), so each layer can override the one before it.
-import 'bootstrap/dist/css/bootstrap.min.css';
+// Our design system first, then the app (whose page stylesheets load
+// last). Bootstrap's stylesheet is no longer loaded: no Bootstrap classes
+// or components are used, and index.css provides the base reset. Dropping
+// it saves ~230 KB of CSS and stops its <legend> rule clashing with MUI
+// outlined text fields.
 import './index.css';
 import App from './App';
 

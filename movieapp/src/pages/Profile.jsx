@@ -2,20 +2,19 @@ import './profile.css';
 
 import { auth, app } from '../FirebaseConfig';
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
 import { onAuthStateChanged } from "firebase/auth";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 import { Link, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import { defaultAvatar } from '../util/avatar';
+import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 let todaysDate = new Date().toLocaleDateString().split('/');
 todaysDate = [parseInt(todaysDate[0]), parseInt(todaysDate[1]), parseInt(todaysDate[2])];
@@ -55,7 +54,7 @@ function Profile() {
     const [inputName, setInputName] = useState('');
     const [inputBio, setInputBio] = useState('');
     const [inputAvatar, setInputAvatar] = useState(null);
-    const [avatarURL, setAvatarURL] = useState('default-avatar-url');
+    const [avatarURL, setAvatarURL] = useState(defaultAvatar);
 
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
@@ -77,22 +76,32 @@ function Profile() {
     };
 
     let avatarRef;
+    let avatarUid = null;
 
-    // Get profile avatar.
+    // Find this profile's avatar location (also used when uploading a new one).
     if (authJson !== null && authJson.usernames !== undefined) {
         for (let i = 0; i < authJson.usernames.length; i++) {
             if (authJson.usernames[i].username === user) {
-                const storage = getStorage();
-                avatarRef = ref(storage, `avatars/${authJson.usernames[i].uid}`);
-                getDownloadURL(avatarRef)
-                    .then((url) => {
-                        setAvatarURL(url);
-                    }).catch((err)=> {
-                        console.log(err)
-                    });
+                avatarUid = authJson.usernames[i].uid;
+                avatarRef = ref(getStorage(), `avatars/${avatarUid}`);
             }
         }
     }
+
+    // Load the avatar once per profile, not on every render.
+    useEffect(() => {
+        if (avatarUid === null) {
+            return;
+        }
+        getDownloadURL(ref(getStorage(), `avatars/${avatarUid}`))
+            .then((url) => setAvatarURL(url))
+            // No avatar, or Cloud Storage unavailable: show the default.
+            .catch(() => setAvatarURL(defaultAvatar));
+    }, [avatarUid]);
+
+    // Favourites and watchlist are fetched from TMDB once per profile; without
+    // this, every re-render before they arrived sent the requests again.
+    const requested = useRef({ favorites: null, watchlist: null });
 
     // Handle avatar change.
     const handleAvatarChange = (e) => {
@@ -347,7 +356,8 @@ function Profile() {
 
         // Favorite movies.
         if (json[user].favoriteFilms.length > 0) {
-            if (favorites.length < json[user].favoriteFilms.length) {
+            if (favorites.length < json[user].favoriteFilms.length && requested.current.favorites !== user) {
+                requested.current.favorites = user;
                 for (let i = 0; i < json[user].favoriteFilms.length; i++) {
                     promises.push(fetch('https://api.themoviedb.org/3/movie/' + json[user].favoriteFilms[i].id + '?language=en-US', options).then(res => res.json()).then(json => json));
                 }
@@ -357,14 +367,14 @@ function Profile() {
                 Promise.all(promises).then(results => {
                     for (let i = 0; i < results.length; i++) {
                         let release = '';
-                        let poster = 'https://image.tmdb.org/t/p/original' + results[i].poster_path;
+                        let poster = tmdbImage(results[i].poster_path);
 
                         if (results[i].release_date !== undefined) {
                             release = results[i].release_date.split('-')[0];
                         }
                         for (let j = 0; j < json[user].favoriteFilms.length; j++) {
                             if (json[user].favoriteFilms[j].id === results[i].id && json[user].favoriteFilms[j].poster !== undefined) {
-                                poster = json[user].favoriteFilms[j].poster;
+                                poster = resizeTmdbUrl(json[user].favoriteFilms[j].poster);
                             }
                         }
                         const map = {
@@ -385,7 +395,7 @@ function Profile() {
                         if (breakRandom === i && banner === '') {
                             setBanner('https://image.tmdb.org/t/p/w1280' + movie.backdrop);
                         }
-                        movs.push(<Link to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster}></img></Link>);
+                        movs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>);
                     }
                     setFavorites(movs);
                 });
@@ -393,7 +403,8 @@ function Profile() {
         }
 
         // Watchlist.
-        if (watchlist.length === 0 && json[user].watchlist.length > 0) {
+        if (watchlist.length === 0 && json[user].watchlist.length > 0 && requested.current.watchlist !== user) {
+            requested.current.watchlist = user;
             for (let i = 0; i < json[user].watchlist.length; i++) {
                 watchlistPromises.push(fetch('https://api.themoviedb.org/3/movie/' + json[user].watchlist[i].id + '?language=en-US', options).then(res => res.json()).then(json => json));
             }
@@ -408,14 +419,14 @@ function Profile() {
                         continue;
                     }
                     let release = '';
-                    let poster = 'https://image.tmdb.org/t/p/original' + results[i].poster_path;
+                    let poster = tmdbImage(results[i].poster_path);
 
                     if (results[i].release_date !== undefined) {
                         release = results[i].release_date.split('-')[0];
                     }
                     for (let j = 0; j < json[user].watchlist.length; j++) {
                         if (json[user].watchlist[j].id === results[i].id && json[user].watchlist[j].poster !== undefined) {
-                            poster = json[user].watchlist[j].poster;
+                            poster = resizeTmdbUrl(json[user].watchlist[j].poster);
                         }
                     }
                     const map = {
@@ -432,7 +443,7 @@ function Profile() {
                     if (movie === undefined) {
                         continue;
                     }
-                    watchlistMovs.push(<Link to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster}></img></Link>);
+                    watchlistMovs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>);
                 }
                 setWatchlist(watchlistMovs);
             });

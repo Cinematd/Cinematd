@@ -64,7 +64,7 @@ const SignIn = () => {
         });
     }
     getJSON();
-  }, {});
+  }, []);
 
   let navigate = useNavigate(); 
   const redirect = (p) => { 

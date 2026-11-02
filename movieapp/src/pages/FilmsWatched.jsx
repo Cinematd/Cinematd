@@ -5,7 +5,8 @@ import { app } from '../FirebaseConfig';
 import { getFirestore, collection, getDocs } from "firebase/firestore";
 
 import { Link } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 let todaysDate = new Date().toLocaleDateString().split('/');
 todaysDate = [parseInt(todaysDate[0]), parseInt(todaysDate[1]), parseInt(todaysDate[2])];
@@ -33,6 +34,9 @@ function FilmsWatched () {
     let user = url[url.length - 2];
 
     const [movies, setMovies] = useState([]);
+    // Fetch each member's films once; fetching during every render (and
+    // re-rendering when they arrived) looped forever.
+    const fetchedFor = useRef(null);
     const [json, setJSON] = useState({});
 
     const promises = [];
@@ -60,7 +64,8 @@ function FilmsWatched () {
     // Use of Promises is necessary to ensure that the data is fetched before it is
     // displayed. Use of states and hooks is necessary to ensure that the data is displayed
     // after it is fetched.
-    if (json[user] !== undefined) {
+    if (json[user] !== undefined && fetchedFor.current !== user) {
+        fetchedFor.current = user;
         for (let i = 0; i < json[user].films.length; i++) {
             // TODO: Spams 404 error in console. Need fix ASAP
             promises.push(fetch('https://api.themoviedb.org/3/movie/' + json[user].films[i].id + '?language=en-US', options).then(res => res.json()).then(json => json));
@@ -70,7 +75,7 @@ function FilmsWatched () {
         Promise.all(promises).then(results => {
             for (let i = 0; i < results.length; i++) {
                 let release = '';
-                let poster = 'https://image.tmdb.org/t/p/original' + results[i].poster_path;
+                let poster = tmdbImage(results[i].poster_path);
                 let rating = 0;
 
                 if (results[i].release_date !== undefined) {
@@ -79,7 +84,7 @@ function FilmsWatched () {
                 for (let j = 0; j < json[user].films.length; j++) {
                     if (json[user].films[j].id === results[i].id) {
                         if (json[user].films[j].poster !== undefined) {
-                            poster = json[user].films[j].poster;
+                            poster = resizeTmdbUrl(json[user].films[j].poster);
                         }
                         rating = json[user].films[j].rating;
                     }
@@ -141,7 +146,7 @@ function FilmsWatched () {
                 movs.push(
                     <div className="film">
                         <div className="film-poster">
-                            <Link to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster}></img></Link>
+                            <Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>
                         </div>
                         <div className="stars film-rating">
                             {rate}

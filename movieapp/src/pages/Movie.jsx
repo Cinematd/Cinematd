@@ -3,13 +3,10 @@ import './movie.css'
 import { app, auth } from '../FirebaseConfig';
 import MovieQueue from '../util/MovieQueue';
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
 import { onAuthStateChanged } from "firebase/auth";
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from 'react-router-dom';
 import Footer from '../Footer';
 
@@ -20,6 +17,7 @@ import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 const options = {
     method: 'GET',
@@ -77,6 +75,10 @@ function Movie() {
     const [rating, setRating] = React.useState(0);
     const [updated, setUpdated] = useState(false);
     const [review, setReview] = useState('');
+    // Which film the backdrop and credits were requested for, so they are
+    // fetched once per film rather than on every render.
+    const bannerRequestedFor = useRef(null);
+    const creditsRequestedFor = useRef(null);
 
     
     const [open, setOpen] = React.useState(false);
@@ -105,7 +107,7 @@ function Movie() {
                 .then(res => res.json())
                 .then(json => {
                     setResults(json.results);
-                    setPoster('https://image.tmdb.org/t/p/original' + json.results[0].poster_path);
+                    setPoster(tmdbImage(json.results[0].poster_path, 'w780'));
                 })
                 .catch(err => console.log(err))
         }
@@ -126,7 +128,7 @@ function Movie() {
             });
         }
         getAuthJSON();
-    }, {});
+    }, []);
 
     // Get if user is logged in.
     useEffect(() => {
@@ -158,7 +160,7 @@ function Movie() {
             });
         }
         getJSON();
-    }, {});
+    }, []);
 
     // Get movie information and put movie information into a queue.
     for (let i = 0; i < results.length; i++) {
@@ -176,7 +178,7 @@ function Movie() {
                 optional_title: original_title,
                 description: result.overview,
                 release: result.release_date,
-                poster: 'https://image.tmdb.org/t/p/original' + result.poster_path,
+                poster: tmdbImage(result.poster_path),
                 backdrop: 'https://image.tmdb.org/t/p/w1280' + result.backdrop_path,
                 popularity: result.popularity
             };
@@ -249,7 +251,8 @@ function Movie() {
     }
 
     // Set banner.
-    if (banner === '') {
+    if (banner === '' && id && bannerRequestedFor.current !== id) {
+        bannerRequestedFor.current = id;
         fetch('https://api.themoviedb.org/3/movie/' + id + '/images?include_image_language=null', options)
           .then(res => res.json())
           .then(json => {
@@ -268,7 +271,8 @@ function Movie() {
     }
 
     // Set director.
-    if (director === '') {
+    if (director === '' && id && creditsRequestedFor.current !== id) {
+        creditsRequestedFor.current = id;
         let dir = [];
         let d = '';
         fetch('https://api.themoviedb.org/3/movie/' + id + '/credits?language=en-US', options)
@@ -442,14 +446,14 @@ function Movie() {
                                 Promise.all(favPromises).then(results => {
                                     for (let j = 0; j < results.length; j++) {
                                         let release = '';
-                                        let poster = 'https://image.tmdb.org/t/p/original' + results[j].poster_path;
+                                        let poster = tmdbImage(results[j].poster_path, 'w342');
                 
                                         if (results[j].release_date !== undefined) {
                                             release = results[j].release_date.split('-')[0];
                                         }
                                         for (let k = 0; k < json[user].favoriteFilms.length; k++) {
                                             if (json[user].favoriteFilms[k].id === results[j].id && json[user].favoriteFilms[k].poster !== undefined) {
-                                                poster = json[user].favoriteFilms[k].poster;
+                                                poster = resizeTmdbUrl(json[user].favoriteFilms[k].poster);
                                             }
                                         }
                                         const map = {
@@ -519,7 +523,7 @@ function Movie() {
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                             <div className="favorite-movies-list">
-                                <img className="favorite-movie-poster" src={favoriteMovies[0]} onClick={() => {
+                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[0]} onClick={() => {
                                     json[user].favoriteFilms[0].id = queue.get(0).id;
                                     const set = async () => {
                                         await setDoc(doc(getFirestore(app), "members", "member"), json);
@@ -528,7 +532,7 @@ function Movie() {
                                     handleClose();
                                     setIsFavorite('#e0a84e');
                                 }}></img>
-                                <img className="favorite-movie-poster" src={favoriteMovies[1]} onClick={() => {
+                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[1]} onClick={() => {
                                     json[user].favoriteFilms[1].id = queue.get(0).id;
                                     const set = async () => {
                                         await setDoc(doc(getFirestore(app), "members", "member"), json);
@@ -537,7 +541,7 @@ function Movie() {
                                     handleClose();
                                     setIsFavorite('#e0a84e');
                                 }}></img>
-                                <img className="favorite-movie-poster" src={favoriteMovies[2]} onClick={() => {
+                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[2]} onClick={() => {
                                     json[user].favoriteFilms[2].id = queue.get(0).id;
                                     const set = async () => {
                                         await setDoc(doc(getFirestore(app), "members", "member"), json);
@@ -546,7 +550,7 @@ function Movie() {
                                     handleClose();
                                     setIsFavorite('#e0a84e');
                                 }}></img>
-                                <img className="favorite-movie-poster" src={favoriteMovies[3]} onClick={() => {
+                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[3]} onClick={() => {
                                     json[user].favoriteFilms[3].id = queue.get(0).id;
                                     const set = async () => {
                                         await setDoc(doc(getFirestore(app), "members", "member"), json);
@@ -555,7 +559,7 @@ function Movie() {
                                     handleClose();
                                     setIsFavorite('#e0a84e');
                                 }}></img>
-                                <img className="favorite-movie-poster" src={favoriteMovies[4]} onClick={() => {
+                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[4]} onClick={() => {
                                     json[user].favoriteFilms[4].id = queue.get(0).id;
                                     const set = async () => {
                                         await setDoc(doc(getFirestore(app), "members", "member"), json);
@@ -693,7 +697,7 @@ function Movie() {
                             for (let j = 0; j < json[user].films.length; j++) {
                                 if (json[user].films[j].id === queue.get(0).id) {
                                     if (json[user].films[j].poster !== undefined) {
-                                        poster = json[user].films[j].poster;
+                                        poster = resizeTmdbUrl(json[user].films[j].poster);
                                     }
                                 }
                             }

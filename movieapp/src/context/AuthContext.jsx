@@ -2,9 +2,6 @@ import { onAuthStateChanged } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import { auth } from '../FirebaseConfig'
 import { app } from '../FirebaseConfig';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
 
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 

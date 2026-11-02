@@ -31,7 +31,7 @@ const AuthDetails = () => {
         });
     }
     getJSON();
-  }, {});
+  }, []);
 
   useEffect(() => {
     const listen = onAuthStateChanged(auth, (user) => {

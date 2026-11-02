@@ -3,6 +3,7 @@ import { setDoc, getFirestore, doc, onSnapshot } from "firebase/firestore";
 import { db, app } from "../FirebaseConfig";
 import { AuthContext } from "../context/AuthContext";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { defaultAvatar } from '../util/avatar';
 
 /**
  * Input component:
@@ -23,16 +24,15 @@ const Input = () => {
 
     const { authUser } = useContext(AuthContext);
 
-    if (authUser !== null) {
-        const storage = getStorage();
-        const avatarRef = ref(storage, `avatars/${authUser.uid}`);
-        getDownloadURL(avatarRef)
-            .then((url) => {
-                setAvatarURL(url);
-            }).catch((err) => {
-                console.log(err)
-            });
-    }
+    // Load the signed-in member's avatar once, not on every keystroke.
+    useEffect(() => {
+        if (authUser === null) {
+            return;
+        }
+        getDownloadURL(ref(getStorage(), `avatars/${authUser.uid}`))
+            .then((url) => setAvatarURL(url))
+            .catch(() => setAvatarURL(defaultAvatar));
+    }, [authUser]);
 
     if (chats !== undefined && chats.chatID === undefined && authUser !== null) {
         const getChats = () => {

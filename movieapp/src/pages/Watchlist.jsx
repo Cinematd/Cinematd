@@ -2,11 +2,11 @@ import './watchlist.css';
 
 import { app } from '../FirebaseConfig';
 
-import firebase from 'firebase/compat/app';
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 import { Link } from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 let todaysDate = new Date().toLocaleDateString().split('/');
 todaysDate = [parseInt(todaysDate[0]), parseInt(todaysDate[1]), parseInt(todaysDate[2])];
@@ -33,6 +33,9 @@ function Watchlist() {
     let user = url[url.length - 2];
 
     const [movies, setMovies] = useState([]);
+    // Fetch each member's films once; fetching during every render (and
+    // re-rendering when they arrived) looped forever.
+    const fetchedFor = useRef(null);
     const [json, setJSON] = useState({});
 
     const promises = [];
@@ -52,10 +55,11 @@ function Watchlist() {
             });
         }
         getJSON();
-    }, {});
+    }, []);
 
     // Get all the watchlist movie information.
-    if (json[user] !== undefined) {
+    if (json[user] !== undefined && fetchedFor.current !== user) {
+        fetchedFor.current = user;
         for (let i = 0; i < json[user].watchlist.length; i++) {
             promises.push(fetch('https://api.themoviedb.org/3/movie/' + json[user].watchlist[i].id + '?language=en-US', options).then(res => res.json()).then(json => json));
         }
@@ -71,7 +75,7 @@ function Watchlist() {
                 }
                 let release = '';
                 // let page_title = '';
-                let poster = 'https://image.tmdb.org/t/p/original' + results[i].poster_path;
+                let poster = tmdbImage(results[i].poster_path);
 
                 if (results[i].release_date !== undefined) {
                     release = results[i].release_date.split('-')[0];
@@ -83,7 +87,7 @@ function Watchlist() {
                 */
                 for (let j = 0; j < json[user].watchlist.length; j++) {
                     if (json[user].watchlist[j].id === results[i].id && json[user].watchlist[j].poster !== undefined) {
-                        poster = json[user].watchlist[j].poster;
+                        poster = resizeTmdbUrl(json[user].watchlist[j].poster);
                     }
                 }
                 const map = {
@@ -123,7 +127,7 @@ function Watchlist() {
                 if (movie === undefined) {
                     continue;
                 }
-                movs.push(<Link to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster}></img></Link>);
+                movs.push(<Link to={`/movie/${movie.page_title}`}><img loading='lazy' decoding='async' className='poster-sizing' src={movie.poster}></img></Link>);
             }
             setMovies(movs);
         });

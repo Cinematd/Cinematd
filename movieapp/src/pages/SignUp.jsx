@@ -2,9 +2,6 @@ import './signup.css';
 
 import { auth, app } from "../FirebaseConfig";
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
 import { beforeAuthStateChanged, createUserWithEmailAndPassword } from "firebase/auth";
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 
@@ -70,7 +67,7 @@ const SignUp = () => {
         });
     }
     getJSON();
-  }, {});
+  }, []);
 
   // Get members JSON.
   useEffect(() => {
@@ -87,7 +84,7 @@ const SignUp = () => {
         });
     }
     getMembersJSON();
-  }, {});
+  }, []);
 
   let navigate = useNavigate(); 
     const redirect = (p) => { 
