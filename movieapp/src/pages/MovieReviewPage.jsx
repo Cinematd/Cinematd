@@ -79,7 +79,7 @@ function MovieReviewPage() {
     return (
         <div className="review-page-container">
             <div className="reviews-section">
-                <div className="title"><h1>Reviews</h1></div>
+                <div className="title"><h1 className="page-title">Reviews</h1></div>
                 <ol>{reviews}</ol>
 
 

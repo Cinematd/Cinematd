@@ -11,6 +11,7 @@ import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firesto
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import Footer from '../Footer';
 
 import StarIcon from '@mui/icons-material/Star';
 import TextField from '@mui/material/TextField';
@@ -67,7 +68,7 @@ function Movie() {
     const [logged, setLogged] = useState('Log');
     const [watchlist, setWatchlist] = useState('Add to Watchlist');
     const [favoriteMovies, setFavoriteMovies] = useState([]);
-    const [isFavorite, setIsFavorite] = useState('white');
+    const [isFavorite, setIsFavorite] = useState('#ece7de');
 
     const [json, setJSON] = useState({});
     const [authJson, setAuthJSON] = useState({});
@@ -86,9 +87,13 @@ function Movie() {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 1300,
-        bgcolor: '#1c1c1c',
-        border: '2px solid #000',
+        width: 'min(1200px, 92vw)',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        bgcolor: '#141416',
+        color: '#ece7de',
+        border: '1px solid rgba(236, 231, 222, 0.12)',
+        borderRadius: '4px',
         boxShadow: 24,
         p: 4,
     };
@@ -205,7 +210,7 @@ function Movie() {
         if (json[username] !== undefined) {
             for (let i = 0; i < json[user].favoriteFilms.length; i++) {
                 if (json[user].favoriteFilms[i].id === id) {
-                    setIsFavorite('#202d5c');
+                    setIsFavorite('#e0a84e');
                     break;
                 }
             }
@@ -342,30 +347,30 @@ function Movie() {
         navigate(path);
     }
 
+    const film = queue.get(0);
+
     // Render the movie page.
     return (
         <div className="movie-container">
-            <center>
+            <div className="movie-hero">
                 <div className="movie-banner-image" style={{backgroundImage: "url(" + banner + ")"}}></div>
-            </center>
-            <center>
-                <div className="movie-information">
-                    <img className="movie-poster" src={poster}></img>
-                        <div className="title">
-                            <p>{`${queue.get(0) == null ? '' : queue.get(0).title}`}</p>
-                                <div className="movie-header">
-                                    <div className="optional-title"><i>{`${queue.get(0) == null ? '' : queue.get(0).optional_title}`}</i></div>
-                                    <p>Directed by: {`${director}`}</p>
-                                    <p>{`${release}`} </p>
-                                </div>
-                        </div>
-
-                    <div className="description">
-                        <p>{`${queue.get(0) == null ? '' : queue.get(0).description}`}</p>
+            </div>
+            <div className="movie-information">
+                <img className="movie-poster" src={poster} alt={film == null ? '' : film.title + ' poster'}></img>
+                <div className="movie-details">
+                    <div className="title">
+                        <h1>{`${film == null ? '' : film.title}`}</h1>
+                        {film != null && film.optional_title && film.optional_title !== film.title ? (
+                            <p className="optional-title"><i>{film.optional_title}</i></p>
+                        ) : null}
                     </div>
-                </div>
-            </center>
-            <center>
+                    <div className="movie-header">
+                        <p className="credit"><span className="credit-role">Directed by</span> {`${director}`}</p>
+                        <p className="credit">{`${release}`}</p>
+                    </div>
+                    <div className="description">
+                        <p>{`${film == null ? '' : film.description}`}</p>
+                    </div>
             <div className="add-to-section">
                 <button className="add-to-watchlist-button" onClick={() => {
                     if (user === null) {
@@ -416,7 +421,7 @@ function Movie() {
                 }}>{watchlist}
                 </button>
 
-                <button className='add-to-favorite-button' onClick={() => {
+                <button className='add-to-favorite-button' aria-label="Favorite" onClick={() => {
                     const favPromises = [];
                     let exists = false;
                     for (let i = 0; i < json[user].favoriteFilms.length; i++) {
@@ -475,7 +480,7 @@ function Movie() {
                                 await setDoc(doc(getFirestore(app), "members", "member"), json);
                             }
                             set();
-                            setIsFavorite('white');
+                            setIsFavorite('#ece7de');
                         }
                     } else {
                         if (!exists) {
@@ -486,7 +491,7 @@ function Movie() {
                                 await setDoc(doc(getFirestore(app), "members", "member"), json);
                             }
                             set();
-                            setIsFavorite('#202d5c');
+                            setIsFavorite('#e0a84e');
                         } else {
                             for (let j = 0; j < json[user].favoriteFilms.length; j++) {
                                 if (json[user].favoriteFilms[j].id === id) {
@@ -498,7 +503,7 @@ function Movie() {
                                 await setDoc(doc(getFirestore(app), "members", "member"), json);
                             }
                             set();
-                            setIsFavorite('white');
+                            setIsFavorite('#ece7de');
                         }
                     }
             }}><FavoriteIcon style={{color: isFavorite}}/></button>
@@ -510,7 +515,7 @@ function Movie() {
                         
                     <Box sx={style}>
                         <Typography id="modal-modal-title" variant="h6" component="h2">
-                            <h1>Favorite</h1>
+                            <span className="modal-title">Your favorites are full. Pick one to replace.</span>
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                             <div className="favorite-movies-list">
@@ -521,7 +526,7 @@ function Movie() {
                                     }
                                     set();
                                     handleClose();
-                                    setIsFavorite('#202d5c');
+                                    setIsFavorite('#e0a84e');
                                 }}></img>
                                 <img className="favorite-movie-poster" src={favoriteMovies[1]} onClick={() => {
                                     json[user].favoriteFilms[1].id = queue.get(0).id;
@@ -530,7 +535,7 @@ function Movie() {
                                     }
                                     set();
                                     handleClose();
-                                    setIsFavorite('#202d5c');
+                                    setIsFavorite('#e0a84e');
                                 }}></img>
                                 <img className="favorite-movie-poster" src={favoriteMovies[2]} onClick={() => {
                                     json[user].favoriteFilms[2].id = queue.get(0).id;
@@ -539,7 +544,7 @@ function Movie() {
                                     }
                                     set();
                                     handleClose();
-                                    setIsFavorite('#202d5c');
+                                    setIsFavorite('#e0a84e');
                                 }}></img>
                                 <img className="favorite-movie-poster" src={favoriteMovies[3]} onClick={() => {
                                     json[user].favoriteFilms[3].id = queue.get(0).id;
@@ -548,7 +553,7 @@ function Movie() {
                                     }
                                     set();
                                     handleClose();
-                                    setIsFavorite('#202d5c');
+                                    setIsFavorite('#e0a84e');
                                 }}></img>
                                 <img className="favorite-movie-poster" src={favoriteMovies[4]} onClick={() => {
                                     json[user].favoriteFilms[4].id = queue.get(0).id;
@@ -557,7 +562,7 @@ function Movie() {
                                     }
                                     set();
                                     handleClose();
-                                    setIsFavorite('#202d5c');
+                                    setIsFavorite('#e0a84e');
                                 }}></img>
                                 
                             </div>
@@ -625,7 +630,7 @@ function Movie() {
                     logged
                 }</button>
                 <div className="review-section">
-                        <Rating className='star-rating-icon' size ='large' precision={0.5} value={rating} onChange={(event, newValue) => {
+                        <Rating className='star-rating-icon' size='medium' precision={0.5} value={rating} onChange={(event, newValue) => {
                             if (user === null) {
                                 redirect('/signin');
                                 return;
@@ -658,10 +663,10 @@ function Movie() {
                         }}/>
                         {/* <TextField id="outlined-textarea" label="Text here:" placeholder="Placeholder" multiline/> */}
                         <Box  sx={{ width: 800, maxWidth: '100%',}}>  
-                            <TextField className="textbox" fullWidth label="Text Here" id="custom-css-outlined-input" onChange={(e) => { setReview(e.target.value); }}/>
+                            <TextField className="textbox" fullWidth multiline minRows={3} variant="standard" label="Write a review" id="review-text" onChange={(e) => { setReview(e.target.value); }}/>
                             
                         </Box>
-                        <button className="submit-review-button" onClick={() => {
+                        <button className="submit-review-button btn-screen" onClick={() => {
                             // Review stuff
                             if (user === null) {
                                 redirect('/signin');
@@ -708,18 +713,16 @@ function Movie() {
                                 await setDoc(doc(getFirestore(app), "members", "member"), json);
                             }
                             set();
-                        }}> Save</button>
+                        }}>Save review</button>
 
                         {/* <label><textarea name="postContent" rows={4} cols={40} /> </label> */}
                 </div>
             </div>
-            </center>
-
-            <div className="copyright">
-                <center><span style={{color: "blanchedalmond"}}>© Cinematd. Co-founded by Amer Issa & Pride Yin</span></center>
+                </div>
             </div>
+
+            <Footer />
         </div>
-        
     )
 }
 

@@ -1,40 +1,26 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Courier Prime', sans-serif !important;
-  }
- 
-  body {
-    max-width: 100%;
-    overflow-x: hidden;
-    background-color: #1c1c1c;
-    
-    
-  }
-  .signout-container {
-    color: white;
-    background-color: #1c1c1c;
-    padding-top: 100px;
-    align-items: center;
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    padding-top: 150px;
-    padding-bottom: 1200px;
-  }
-  .signoutpage-button{
-    position: relative;
-    color: white ;
-    background-color: #292929;
-    width: 95px;
-    height: 45px;
-    border: none;
-    font-size: 18px;
-    border-radius: 5px;
-  }
-  .signoutpage-button:hover{
-    background-color: white;
-    color: #1c1c1c;
-    box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
-  }
+/* Sign out confirmation (layout shared with signin.css). */
+
+.signout-container {
+  flex-direction: column;
+  gap: 28px;
+  text-align: center;
+}
+
+.signout-container h2 {
+  max-width: 24ch;
+  font-family: var(--script);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+/* Signed out: the last line of the script. */
+.signout-container p {
+  font-family: var(--script);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--dust);
+}

@@ -109,7 +109,7 @@ function FollowingPage() {
     return(
         <div className="following-page-container">
             <div className="following-section">
-                <div className="title"><h1>Following</h1></div>
+                <div className="title"><h1 className="page-title">Following</h1></div>
                     <div className="following-acc">
                         <ol>{friends}</ol>
                     </div>

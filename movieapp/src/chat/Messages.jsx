@@ -53,7 +53,7 @@ const Messages = () => {
     return (
         <div className="messages">
             {messages.map((message) => {
-                return <Message message={message} key={message.time} />
+                return <Message message={message} partner={chats === undefined ? '' : chats.username} key={message.time} />
             })}
         </div>
     )

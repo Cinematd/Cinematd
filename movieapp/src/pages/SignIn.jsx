@@ -93,11 +93,12 @@ const SignIn = () => {
   return (
     <div className="sign-in-container">
       <form onSubmit={signIn}>
-        <h1>Log In to your Account</h1>
+        <h1>Log in</h1>
+        <p className="auth-sub">Log films, rate them, and talk them over with friends.</p>
         <div className="emailbox">
         <form>
           <input
-            className="login-textbox" 
+            className="login-textbox field" 
             fullWidth label="Email" 
             id="custom-css-outlined-input-email"        
             onChange={(e) => setEmail(e.target.value)}
@@ -110,7 +111,7 @@ const SignIn = () => {
         <div className="passwordbox">
         <form>
           <input
-            className="login-textbox" 
+            className="login-textbox field" 
             fullWidth label="Password" 
             id="custom-css-outlined-input-password"        
             onChange={(e) => setPassword(e.target.value)}
@@ -120,10 +121,8 @@ const SignIn = () => {
             />
           </form>
         </div>
-        <div><Link to="/signup" className="link">Don't have an account? Sign Up</Link></div>
-        <center>
-          <button className="login-button" type="submit">Log In</button>
-        </center>
+        <button className="login-button btn-screen" type="submit">Log in</button>
+        <div className="auth-switch"><Link to="/signup" className="link">Don't have an account? Sign up</Link></div>
       </form>
     </div>
   );

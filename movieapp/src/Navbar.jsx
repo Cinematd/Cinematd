@@ -69,19 +69,30 @@ export default function Navbar() {
       navigate(path);
   }
 
-  return <nav className="nav">
-      <Link to="/" className="site-title" >Cinematd</Link>
-      <ul>
+  // Once the page scrolls, the strip casts a shadow over the content.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return <nav className={scrolled ? "nav nav--solid" : "nav"}>
+      <Link to="/" className="site-title">Cinematd</Link>
+      <ul className="nav-links">
           <CustomLink to="/home">Home</CustomLink>
           <CustomLink to="/films">Films</CustomLink>
           <CustomLink to="/moviemap">Movie Map</CustomLink>
           <CustomLink to="/members">Members</CustomLink>
           <CustomLink to="/chat">Chat</CustomLink>
-          <Link onClick={() => { 
-            redirect(profile);
-            window.location.reload();
-          }}>Profile</Link>
-
+          <li className="nav-profile">
+            <Link to={profile} onClick={(e) => { 
+              e.preventDefault();
+              redirect(profile);
+              window.location.reload();
+            }}>Profile</Link>
+          </li>
       </ul>
   </nav>
 }

@@ -1,58 +1,31 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Courier Prime', sans-serif !important;
-  }
- 
-  body {
-    max-width: 100%;
-    overflow-x: hidden;
-    background-color: #1c1c1c;
-  }
+/* Logged films: the member's diary as a poster wall with their rating. */
 
 .films-page-container {
-    padding-top: 100px;
-    background-color: #1c1c1c;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    min-height: 1400px;
-    height: auto;
-
+  padding: calc(var(--nav-h) + 40px) var(--gutter) 96px;
 }
 
-.films-box {
-    background-image: linear-gradient(#1c1c1c,#636363);
-    width:1500px;
-    height: auto;
-    min-height: 1200px;
+.films-page-container .films-box {
+  max-width: var(--measure);
+  margin: 0 auto;
 }
 
-.films-box .films-list {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-left: 10px;
+.films-page-container .title {
+  margin-bottom: 36px;
 }
 
-.films-posters .film {
-    align-items: center;
+.films-page-container .title .page-title {
+  margin-bottom: 0;
 }
 
-.film .film-poster {
-  align-items: center;
+.films-list .film {
+  min-width: 0;
 }
 
-.film stars {
-  align-items: center;
-  margin-left: 500px;
-  font-size: 10px;
-  color: white;
-}
-
-.title h1{
-    padding-left: 30px;
-    margin-bottom: 30px;
-    color: white;
+.films-list .film-rating {
+  min-height: 1.5em;
+  margin-top: 10px;
+  color: var(--tungsten);
+  font-size: var(--text-md);
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 10px rgba(242, 184, 75, 0.4);
 }

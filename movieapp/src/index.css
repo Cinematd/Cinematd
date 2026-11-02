@@ -1,13 +1,566 @@
+/*
+ * Cinematd design system: the screenplay
+ * --------------------------------------
+ * A dark screening room with film grain over everything, and the
+ * conventions of a screenplay for the writing: scene headings for
+ * sections, character cues for chat, script pages (paper held with brass
+ * brads) for reviews and sign-in, and transitions (FADE IN / FADE OUT)
+ * to open and close the site.
+ *
+ * Type
+ *   FADE          - display and body: titles, the wordmark, descriptions
+ *                   and interface text (Bigelow & Holmes; self-hosted,
+ *                   licence in assets/fonts/FADE-LICENSE.txt)
+ *   Courier Prime - the screenplay face: headings, credits, dialogue
+ *
+ * Colour
+ *   theatre/silver/dust - the dark room and its text
+ *   paper/ink           - script pages and primary buttons
+ *   tungsten            - light: ratings and focus
+ *   brass               - brads
+ *
+ * This file is imported after Bootstrap so it can reset Bootstrap's
+ * defaults; page stylesheets come after it.
+ */
+
+@font-face {
+  font-family: 'FADE';
+  src: url('./assets/fonts/FADE-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --theatre: #000000;
+  --stage: #121212;
+  --stage-raised: #1c1b1a;
+  --silver: #ece6da;
+  --dust: #9a948a;
+  --rule: rgba(236, 230, 218, 0.13);
+  --rule-strong: rgba(236, 230, 218, 0.3);
+  --tungsten: #f2b84b;
+  --tungsten-dim: rgba(242, 184, 75, 0.16);
+  --paper: #e9e3d4;
+  --paper-edge: #d6cfbd;
+  --ink: #1d1a15;
+  --ink-soft: #5e574c;
+  --brass: #b38d48;
+
+  --display: 'FADE', 'Courier Prime', 'Courier New', monospace;
+  --sans: 'FADE', 'Courier Prime', 'Courier New', monospace;
+  --script: 'Courier Prime', 'Courier New', Courier, monospace;
+
+  /* Type scale (perfect fourth, 17px base) */
+  --text-xs: 0.8125rem;   /* 13 */
+  --text-sm: 0.9375rem;   /* 15 */
+  --text-md: 1.0625rem;   /* 17 */
+  --text-lg: 1.375rem;    /* 22 */
+  --text-xl: 1.875rem;    /* 30 */
+  --text-2xl: 2.5rem;     /* 40 */
+  --text-3xl: clamp(2.5rem, 5vw, 3.75rem);
+  --text-hero: clamp(2.75rem, 7vw, 6rem);
+
+  --measure: 1240px;
+  --gutter: clamp(20px, 4vw, 56px);
+  --nav-h: 80px;
+  --radius: 3px;
+  --ease-screen: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Grain tile used on the page and on paper. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  color-scheme: dark;
+}
+
+@media (max-width: 860px) {
+  :root {
+    --nav-h: 66px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  max-width: 100%;
+  overflow-x: hidden;
+  background: var(--theatre);
+  color: var(--silver);
+  font-family: var(--sans);
+  font-size: var(--text-md);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--silver);
+  font-family: var(--display);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0;
+  font-variant-numeric: lining-nums proportional-nums;
+}
+
+p, ol, ul, dl, dd, figure {
+  margin: 0;
+}
+
+ol, ul {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--tungsten);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--tungsten);
+  color: var(--theatre);
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--theatre); }
+::-webkit-scrollbar-thumb { background: #3a3936; border-radius: 10px; border: 2px solid var(--theatre); }
+::-webkit-scrollbar-thumb:hover { background: #57554f; }
+
+/* ---------- Film grain ----------
+ * A layer of noise over the whole site, flickering like a projected print.
+ * Overlay blending keeps blacks black and lets the grain show in images.
+ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0.22;
+  mix-blend-mode: overlay;
+  background-image: var(--grain);
+  animation: grain 0.9s steps(6) infinite;
+}
+
+/* A faint gate weave of light and dark, like an old print. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.35) 100%);
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  17% { transform: translate(-4%, 3%); }
+  33% { transform: translate(3%, -5%); }
+  50% { transform: translate(-6%, -2%); }
+  67% { transform: translate(5%, 4%); }
+  83% { transform: translate(-2%, 6%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ---------- Shared building blocks ---------- */
+
+/* Page shell: every routed page sits below the fixed navbar. */
+.page {
+  padding: calc(var(--nav-h) + 40px) var(--gutter) 96px;
+  max-width: calc(var(--measure) + var(--gutter) * 2);
+  margin: 0 auto;
+}
+
+.page-title {
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  margin-bottom: 32px;
+}
+
+/* Screenplay transitions: FADE IN: opens the site, FADE OUT. closes it. */
+.transition-cue {
+  font-family: var(--script);
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--dust);
+  margin-bottom: 18px;
+}
+
+.transition-cue--end {
+  text-align: right;
+  max-width: var(--measure);
+  margin: 0 auto 56px;
+}
+
+/* A film print: every poster on the site shares this treatment. */
+.poster-sizing,
+.MovieImage-size,
+.poster {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--stage);
+  outline: 1px solid rgba(236, 230, 218, 0.1);
+  outline-offset: -1px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  transition: transform 0.35s var(--ease-screen), box-shadow 0.35s ease, outline-color 0.25s ease;
+}
+
+a:hover > .poster-sizing,
+a:hover > .MovieImage-size,
+a:hover > .poster,
+a:focus-visible > .poster-sizing,
+a:focus-visible > .MovieImage-size {
+  transform: translateY(-6px);
+  outline: 1px solid var(--rule-strong);
+  outline-offset: 4px;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(242, 184, 75, 0.12);
+}
+
+/* Title and year under a poster. */
+.poster-caption {
+  display: -webkit-box;
+  margin-top: 12px;
+  font-size: var(--text-sm);
+  line-height: 1.35;
+  color: var(--silver);
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.poster-caption .poster-year {
+  margin-left: 6px;
+  font-family: var(--script);
+  font-size: var(--text-xs);
+  color: var(--dust);
+}
+
+/* Responsive poster wall used by Films, Watchlist, Logged films, Profile. */
+.poster-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(170px, calc(50% - 10px)), 1fr));
+  gap: 36px 22px;
+}
+
+.poster-grid > a,
+.poster-grid > li {
+  display: block;
+  min-width: 0;
+}
+
+/* ---------- Scene headings ----------
+ * Section headings are set as screenplay scene headings: bold capitals in
+ * Courier, numbered in the margin like a shooting script.
+ */
+body {
+  counter-reset: scene;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 14px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-head h2,
+.section-head h3 {
+  counter-increment: scene;
+  font-family: var(--script);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.section-head h2::before,
+.section-head h3::before {
+  content: counter(scene);
+  display: inline-block;
+  min-width: 2.4em;
+  font-weight: 400;
+  color: var(--dust);
+}
+
+/* Links beside a heading read like a parenthetical. */
+.section-link {
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  color: var(--dust);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.section-link::before { content: '('; }
+.section-link::after { content: ')'; }
+
+.section-link:hover {
+  color: var(--tungsten);
+}
+
+@media (max-width: 600px) {
+  .section-head h2,
+  .section-head h3 {
+    font-size: var(--text-md);
+  }
+
+  .poster-grid {
+    gap: 28px 14px;
+  }
+}
+
+/* Framed dark panel. */
+.lobby-card {
+  position: relative;
+  background: var(--stage);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+}
+
+/* ---------- Script page ----------
+ * Paper held with two brass brads, set in Courier like a screenplay page.
+ */
+.script-page {
+  position: relative;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 22px 22%, #e2c47e 0 2px, var(--brass) 3px 6px, #6e5426 7px, rgba(0, 0, 0, 0.25) 8px, transparent 9px),
+    radial-gradient(circle at 22px 78%, #e2c47e 0 2px, var(--brass) 3px 6px, #6e5426 7px, rgba(0, 0, 0, 0.25) 8px, transparent 9px),
+    var(--grain),
+    linear-gradient(180deg, #efe9db 0%, var(--paper) 100%);
+  background-blend-mode: normal, normal, soft-light, normal;
+  background-size: auto, auto, 180px 180px, auto;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 var(--paper-edge), 0 2px 0 #c7bfac, 0 3px 0 var(--paper-edge), 0 30px 60px rgba(0, 0, 0, 0.6);
+  font-family: var(--script);
+}
+
+.script-page ::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ---------- Buttons ----------
+ * Square-cornered and set in Courier, like labels typed on script stock.
+ */
+
+/* Primary: script paper with typed ink and a thin inset rule. */
+.btn-screen {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 26px;
+  border: 1px solid var(--paper);
+  border-radius: 2px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(29, 26, 21, 0.35);
+  color: var(--ink);
+  font-family: var(--script);
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.btn-screen:hover {
+  background: #f6f1e5;
+  color: var(--ink);
+  box-shadow: inset 0 0 0 3px #f6f1e5, inset 0 0 0 4px var(--ink);
+}
+
+.btn-screen:focus-visible {
+  outline: 2px solid var(--tungsten);
+  outline-offset: 3px;
+}
+
+/* On a script page the primary button is ink on paper, reversed. */
+.script-page .btn-screen,
+.review-section .btn-screen,
+.sign-in-container form .btn-screen,
+.sign-up-container form .btn-screen {
+  background: var(--ink);
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 3px var(--ink), inset 0 0 0 4px rgba(233, 227, 212, 0.35);
+  color: var(--paper);
+}
+
+.script-page .btn-screen:hover,
+.review-section .btn-screen:hover,
+.sign-in-container form .btn-screen:hover,
+.sign-up-container form .btn-screen:hover {
+  background: #36302a;
+  color: var(--paper);
+  box-shadow: inset 0 0 0 3px #36302a, inset 0 0 0 4px var(--paper);
+}
+
+/* Secondary: a ruled outline. */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--silver);
+  border: 1px solid var(--rule-strong);
+  font-family: var(--script);
+  font-size: var(--text-md);
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--silver);
+  background: rgba(236, 230, 218, 0.05);
+  color: var(--silver);
+}
+
+/* Text inputs */
+.field {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--silver);
+  font-size: var(--text-md);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field::placeholder {
+  color: var(--dust);
+}
+
+.field:focus {
+  outline: none;
+  border-color: var(--tungsten);
+  box-shadow: 0 0 0 3px var(--tungsten-dim);
+}
+
+/* Credits line in the screenplay face. */
+.credit {
+  font-family: var(--script);
+  color: var(--dust);
+  font-size: var(--text-sm);
+}
+
+/* ---------- End credits footer ---------- */
+
+.site-credits {
+  position: relative;
+  margin-top: 120px;
+  padding: 72px var(--gutter) 56px;
+  text-align: center;
+  border-top: 1px solid var(--rule);
+}
+
+.credits-wordmark {
+  display: inline-block;
+  margin-bottom: 32px;
+  font-family: var(--display);
+  font-size: var(--text-xl);
+}
+
+.credits-roll {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 24px;
+  row-gap: 6px;
+  max-width: 520px;
+  margin: 0 auto 40px;
+}
+
+.credits-roll dt {
+  grid-column: 1;
+  text-align: right;
+  font-family: var(--script);
+  font-weight: 400;
+  font-size: var(--text-sm);
+  color: var(--dust);
+}
+
+.credits-roll dd {
+  grid-column: 2;
+  text-align: left;
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.credits-legal {
+  font-size: var(--text-xs);
+  color: var(--dust);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  body::after {
+    animation: none;
+  }
 }

@@ -59,7 +59,7 @@ function MembersPage() {
     return (
         <div className="member-page-container">
             <div className="member-section">
-                <div className="title"><h1>Members</h1></div>
+                <div className="title"><h1 className="page-title">Members</h1></div>
                     <div className="member-acc">
                         <ol>{members}</ol>
                     </div>

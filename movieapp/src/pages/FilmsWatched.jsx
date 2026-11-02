@@ -143,7 +143,7 @@ function FilmsWatched () {
                         <div className="film-poster">
                             <Link to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster}></img></Link>
                         </div>
-                        <div className="stars" style={{color: "#787878", marginLeft: "20px", fontSize: "20px"}}>
+                        <div className="stars film-rating">
                             {rate}
                         </div>
                     </div>);
@@ -156,10 +156,10 @@ function FilmsWatched () {
         <div className="films-page-container">
             <div className="films-box">
                 <div className='title'>
-                     <h1>{`${user}'s Logged Films`}</h1>
+                     <h1 className='page-title'>{`${user}'s logged films`}</h1>
                 </div>
                 <div className='films-posters'>
-                    <ol className='films-list'>{movies}</ol>
+                    <ol className='films-list poster-grid'>{movies}</ol>
                 </div>
 
             </div>

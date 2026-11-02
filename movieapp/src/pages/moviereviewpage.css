@@ -1,81 +1,126 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Courier Prime', sans-serif !important;
-}
-
-body {
-  max-width: 100%;
-  overflow-x:auto;
-}
+/* Reviews list: each review is a script page, headed like a scene. */
 
 .review-page-container {
-  background-color: #1c1c1c;
-  color: white;
-  padding-top: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 1400px;
-  height: auto;
+  padding: calc(var(--nav-h) + 40px) var(--gutter) 96px;
 }
 
-.reviews-section{
-  background-image: linear-gradient(#1c1c1c,grey);
-  width: 1400px;
-  min-height: 1400px;
-  height: auto;
-  
-}
-.movie-posters {
-  height:240px;
-  width: 160px;
-  margin-left: 10px;
-  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
-
-}
-.review {
-  display: flex;
-  margin-bottom: 40px;
-
+.reviews-section {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-.review-information {
-  margin-left: 30px;
+.reviews-section .title {
+  margin-bottom: 28px;
+}
+
+.reviews-section .title .page-title {
+  margin-bottom: 0;
+}
+
+.reviews-section ol {
+  display: grid;
+  gap: 28px;
 }
 
 .review-link {
-  color: white;
-  text-decoration: none;
+  display: block;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 24px 24%, #e2c47e 0 2px, var(--brass) 3px 6px, #6e5426 7px, rgba(0, 0, 0, 0.25) 8px, transparent 9px),
+    radial-gradient(circle at 24px 76%, #e2c47e 0 2px, var(--brass) 3px 6px, #6e5426 7px, rgba(0, 0, 0, 0.25) 8px, transparent 9px),
+    var(--grain),
+    linear-gradient(180deg, #efe9db 0%, var(--paper) 100%);
+  background-blend-mode: normal, normal, soft-light, normal;
+  background-size: auto, auto, 180px 180px, auto;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 var(--paper-edge), 0 2px 0 #c7bfac, 0 3px 0 var(--paper-edge), 0 24px 50px rgba(0, 0, 0, 0.55);
+  transition: transform 0.25s var(--ease-screen), box-shadow 0.25s ease;
 }
 
 .review-link:hover {
-  color: grey;
-  text-decoration: none;
+  color: var(--ink);
+  transform: translateY(-3px) rotate(-0.3deg);
+  box-shadow: 0 1px 0 var(--paper-edge), 0 2px 0 #c7bfac, 0 3px 0 var(--paper-edge), 0 34px 60px rgba(0, 0, 0, 0.65);
 }
 
-.review-date {
-  display: flex;
-  margin-top: 20px;
+.reviews-section .review {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px;
+  gap: 28px;
+  padding: 30px 32px 30px 60px;
 }
+
+.reviews-section .movie-posters {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  transform: rotate(2deg);
+}
+
+.review-information {
+  grid-column: 1;
+  grid-row: 1;
+  font-family: var(--script);
+}
+
+/* Film title as the scene heading. */
+.review-information h2 {
+  font-family: var(--script);
+  font-size: var(--text-md);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink);
+}
+
+.review-information h2::before {
+  content: 'INT. ';
+}
+
+/* Date as a parenthetical. */
+.review-date h5 {
+  margin: 4px 0 10px;
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+.review-date h5::before { content: '('; }
+.review-date h5::after { content: ')'; }
 
 .review-rating {
-  display: flex;
-  margin-top: 5px;
+  margin-bottom: 12px;
 }
 
-.review-description {
-  margin-top: 30px;
-  width: 700px;
+.review-rating .MuiRating-iconFilled {
+  color: #b5302a;
 }
 
-hr {
-  color: white;
-}
-.line {
-  
+.review-rating .MuiRating-iconEmpty {
+  color: rgba(29, 26, 21, 0.25);
 }
 
+.reviews-section .review-description p {
+  max-width: 60ch;
+  font-family: var(--script);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-
+@media (max-width: 600px) {
+  .reviews-section .review {
+    grid-template-columns: minmax(0, 1fr) 64px;
+    gap: 16px;
+    padding: 24px 18px 24px 48px;
+  }
+}

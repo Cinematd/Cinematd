@@ -1,170 +1,310 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Courier Prime', sans-serif !important;
-}
-
-body {
-  max-width: 100%;
-  overflow-x:auto;
-}
+/* Movie page: a widescreen still, then the film's details set like the
+   title page of a script, and a script page for your review. */
 
 .movie-container {
-  background-color: #1c1c1c;
-  padding-top: 100px;
-  height: auto;
-
+  padding-bottom: 0;
 }
 
+.movie-hero {
+  position: relative;
+  padding-top: var(--nav-h);
+}
 
 .movie-banner-image {
-  height: 720px;
-  width: 1280px;
-  box-shadow: 0px 0px 40px 40px #1c1c1c inset;
-  animation: fade-in 0.5s;
-  max-width: 100%;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.39 / 1;
+  max-height: 72vh;
+  min-height: 300px;
+  background-color: var(--stage);
+  background-size: cover;
+  background-position: center 25%;
+  animation: fade-in 0.6s ease both;
 }
 
+.movie-banner-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to top, var(--theatre) 0%, rgba(0, 0, 0, 0.35) 35%, rgba(0, 0, 0, 0) 65%),
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.5) 100%);
+}
 
-.movie-information{
-  width: 1200px;
-  background-color: #1c1c1c;
-   /* #0d0d0d; */
+.movie-information {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(180px, 300px) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: start;
+  max-width: calc(var(--measure) + var(--gutter) * 2);
+  margin: -150px auto 0;
+  padding: 0 var(--gutter);
+}
+
+.movie-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: var(--stage);
+  outline: 1px solid rgba(236, 230, 218, 0.1);
+  outline-offset: -1px;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.75);
+}
+
+.movie-details {
+  padding-top: 110px;
+  min-width: 0;
+}
+
+.movie-container .title h1 {
+  font-size: clamp(2.5rem, 6vw, 4.75rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+}
+
+.movie-container .optional-title i {
+  font-style: normal;
+}
+
+.movie-container .optional-title {
+  margin-top: 10px;
+  font-family: var(--display);
+  font-size: var(--text-lg);
+  color: var(--dust);
+}
+
+/* Credits, like a title page: "Directed by" over the name. */
+.movie-container .movie-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 32px;
+  margin: 22px 0 28px;
+}
+
+.movie-container .movie-header .credit {
+  font-size: var(--text-md);
+  color: var(--silver);
+}
+
+.movie-container .credit-role {
+  color: var(--dust);
+  margin-right: 6px;
+}
+
+.movie-container .description {
+  max-width: 62ch;
+}
+
+.movie-container .description p {
+  font-size: var(--text-lg);
+  line-height: 1.55;
+  color: rgba(236, 230, 218, 0.86);
+}
+
+/* ---------- Actions ---------- */
+
+.add-to-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 36px;
+}
+
+.add-to-watchlist-button,
+.log-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 22px;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  color: var(--silver);
+  font-family: var(--script);
+  font-size: var(--text-md);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.add-to-watchlist-button:hover,
+.log-button:hover {
+  border-color: var(--silver);
+  background: rgba(236, 230, 218, 0.06);
+}
+
+.add-to-favorite-button {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
-  border-radius: 25px;
-  height: auto;
-  min-height: 525px;
-  padding-bottom: 5px;
-  flex-wrap: wrap; 
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  transition: border-color 0.2s ease;
 }
 
-.movie-poster{
-  width: 320px;
-  height: 480px;
-  margin-left: 20px;
-  margin-top: 20px;
-  float: left;
-  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
-}
-.stars {
-size: 100px;
+.add-to-favorite-button:hover {
+  border-color: var(--silver);
 }
 
-
-
-.movie-container .title {
-  font-size: 80px;
-  color: white;
-  
-}  
-
-.movie-container .title .movie-header{
+.add-to-favorite-button svg {
   font-size: 20px;
 }
 
-.movie-container .title .optional-title {
-  font-size: 30px;
-  color: #b5b5b5;
-  margin-bottom: 20px;
-}
+/* ---------- Review: a clean script page ----------
+ * Heading and rating on one line, a single typed line that grows as you
+ * write, and the save button to the right.
+ */
 
-
-.movie-container .description {
-  color: white;
-  margin-left: 375px;
-  margin-right: 30px;
-  text-align: center;
-}
-.movie-container .copyright {
-  margin-top: 100px;
-  
-}
-
-.favorite-movie-poster{
-  width: 214px;
-  height: 320px;
-  margin: 15px;
-  border-radius: 12px;
-  box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
-
-}
-.favorite-movie-poster:hover{
-  cursor: pointer;
-
-}
-
-
-.add-to-section{
-  margin-top: 20px;
-  bottom: 0;
-  color: white;
-  /* display: flex;
+.review-section {
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: center; */
-  padding-top: 10px;
-  background-color:  #1c1c1c;
-  border-radius: 25px;
-  width: 1200px;
-  box-shadow: rgba(0, 0, 0, 0.56) 0px 15px 30px 4px;
-
+  gap: 20px 24px;
+  margin-top: 28px;
+  padding: 32px 36px 28px;
+  color: var(--ink);
+  background:
+    var(--grain),
+    linear-gradient(180deg, #f1ebde 0%, var(--paper) 100%);
+  background-blend-mode: soft-light, normal;
+  background-size: 180px 180px, auto;
+  border-radius: 2px;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.55);
+  font-family: var(--script);
 }
 
-
-.add-to-favorite-button{
-  font-size: 64px;
-  margin-left: 30px;
-  margin-right: 30px;
-  color: white;
-  background-color: transparent;
-  border-color: transparent;
+/* Scene heading on the page. */
+.review-section::before {
+  content: 'INT. YOUR REVIEW';
+  grid-column: 1;
+  grid-row: 1;
+  font-weight: 700;
+  font-size: var(--text-md);
+  letter-spacing: 0.03em;
 }
 
-.heart-icon {
-  color: white;
+.review-section .star-rating-icon {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
 }
 
-.star-rating-icon {
-  color: #406291;
+.review-section .MuiRating-iconFilled {
+  color: var(--ink);
 }
 
-.add-to-watchlist-button{
-  font-size: 32px;
-  margin-left: 20px;
-  color: white;
-  background-color: transparent;
-  border-color: transparent;
-}
-.log-button{
-  font-size: 32px;
-  color: white;
-  background-color: transparent;
-  border-color: transparent;
-}
-.review-section{
-  color: white;
-  background-color: transparent;
-  height: auto;
-  border-radius: 25px;
-  padding-bottom: 20px;
-  /* padding-top: 20px; */
-
-  
+.review-section .MuiRating-iconHover {
+  color: var(--ink);
 }
 
-
-#outlined-textarea {
-  color: white;
-}
-.submit-review-button{
-  font-size: 24px;
-  margin-left: 20px;
-  color: white;
-  background-color: transparent;
-  border-color: transparent;
-  padding-top: 10px;
+.review-section .MuiRating-iconEmpty {
+  color: rgba(29, 26, 21, 0.22);
 }
 
+.review-section .MuiBox-root {
+  grid-column: 1 / -1;
+  width: 100% !important;
+}
 
+/* The text field: one typed line with a hairline beneath. */
+.review-section .MuiInput-root {
+  color: var(--ink);
+  font-family: var(--script);
+  font-size: var(--text-md);
+  line-height: 1.6;
+}
 
+.review-section .MuiInput-root::before {
+  border-bottom-color: rgba(29, 26, 21, 0.25) !important;
+}
+
+.review-section .MuiInput-root::after {
+  border-bottom: 1px solid var(--ink);
+}
+
+.review-section .MuiInputBase-inputMultiline {
+  resize: none;
+}
+
+.review-section .MuiInputLabel-root {
+  font-family: var(--script);
+  color: var(--ink-soft);
+}
+
+.review-section .MuiInputLabel-root.Mui-focused {
+  color: var(--ink);
+}
+
+.submit-review-button {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+/* Favourite picker (modal) */
+.modal-title {
+  display: block;
+  margin-bottom: 8px;
+  font-family: var(--script);
+  font-weight: 700;
+  font-size: var(--text-lg);
+}
+
+.favorite-movies-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.favorite-movie-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  cursor: pointer;
+  outline: 1px solid transparent;
+  outline-offset: 3px;
+  transition: outline-color 0.2s ease;
+}
+
+.favorite-movie-poster:hover {
+  outline-color: var(--tungsten);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 760px) {
+  .movie-information {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: -90px;
+    gap: 24px;
+  }
+
+  .movie-poster {
+    width: 150px;
+  }
+
+  .movie-details {
+    padding-top: 0;
+  }
+
+  .review-section {
+    padding: 26px 22px 22px;
+  }
+
+  .favorite-movies-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -1,50 +1,149 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Courier Prime', sans-serif !important;
-  }
- 
-  body {
-    max-width: 100%;
-    overflow-x: hidden;
-    background-color: #1c1c1c;
-    
-    
-  }
-  .sign-in-container {
-    background-color: #1c1c1c;
-    color: white;
-    padding-top: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-bottom: 1200px;
-  }
-  .emailbox {
-    padding-top: 10px;
-  }
-  .passwordbox {
-    padding-top: 10px;
-  }
+/* Log in / Sign up: the title page of a script, on paper, under a work
+   light. Sign out shares the centred layout. */
 
-  .login-textbox{
-    width: 450px;
-    border: 1px solid white;
+.sign-in-container,
+.sign-up-container,
+.signout-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 40px) var(--gutter) 80px;
+  background:
+    radial-gradient(ellipse 45% 60% at 50% 30%, rgba(242, 184, 75, 0.09) 0%, rgba(0, 0, 0, 0) 70%),
+    var(--theatre);
+  color: var(--silver);
+}
+
+.sign-in-container > form,
+.sign-up-container > form {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+  padding: 56px 48px 48px 72px;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 30px 16%, #e2c47e 0 2px, var(--brass) 3px 6px, #6e5426 7px, rgba(0, 0, 0, 0.25) 8px, transparent 9px),
+    radial-gradient(circle at 30px 84%, #e2c47e 0 2px, var(--brass) 3px 6px, #6e5426 7px, rgba(0, 0, 0, 0.25) 8px, transparent 9px),
+    var(--grain),
+    linear-gradient(180deg, #efe9db 0%, var(--paper) 100%);
+  background-blend-mode: normal, normal, soft-light, normal;
+  background-size: auto, auto, 180px 180px, auto;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 var(--paper-edge), 0 2px 0 #c7bfac, 0 3px 0 var(--paper-edge), 0 40px 80px rgba(0, 0, 0, 0.7);
+  font-family: var(--script);
+}
+
+/* Title: capitals, underlined, centred, as on a title page. */
+.sign-in-container h1,
+.sign-up-container h1 {
+  font-family: var(--script);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-align: center;
+  color: var(--ink);
+}
+
+.auth-sub {
+  margin-bottom: 24px;
+  text-align: center;
+  font-size: var(--text-md);
+  color: var(--ink-soft);
+}
+
+.sign-in-container .emailbox,
+.sign-in-container .passwordbox,
+.sign-up-container .userbox,
+.sign-up-container .emailbox,
+.sign-up-container .passwordbox {
+  padding: 0;
+}
+
+/* Fields are typed lines. */
+.sign-in-container .login-textbox.field {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 2px;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid rgba(29, 26, 21, 0.4);
+  border-radius: 0;
+  color: var(--ink);
+  font-family: var(--script);
+  font-size: var(--text-md);
+  box-shadow: none;
+}
+
+.sign-in-container .login-textbox.field::placeholder {
+  color: var(--ink-soft);
+}
+
+.sign-in-container .login-textbox.field:focus {
+  border-bottom: 2px solid var(--ink);
+  box-shadow: none;
+}
+
+/* MUI fields on the sign-up page, matched to the paper. */
+.sign-up-container .MuiOutlinedInput-root {
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--script);
+}
+
+.sign-up-container .MuiOutlinedInput-notchedOutline,
+.sign-up-container .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(29, 26, 21, 0.35);
+}
+
+.sign-up-container .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: var(--ink);
+}
+
+.sign-up-container .MuiInputLabel-root {
+  font-family: var(--script);
+  color: var(--ink-soft);
+}
+
+.sign-up-container .MuiInputLabel-root.Mui-focused {
+  color: var(--ink);
+}
+
+.sign-in-container .btn-screen,
+.sign-up-container .btn-screen {
+  width: 100%;
+  margin-top: 14px;
+  min-height: 48px;
+}
+
+.auth-switch {
+  text-align: center;
+  font-size: var(--text-sm);
+}
+
+.auth-switch .link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-switch .link:hover {
+  color: #b5302a;
+}
+
+@media (max-width: 520px) {
+  .sign-in-container > form,
+  .sign-up-container > form {
+    min-height: 0;
+    padding: 44px 24px 40px 52px;
   }
-  .login-button{
-    color: white ;
-    background-color: #292929;
-    width: 90px;
-    height: 40px;
-    border: none;
-    font-size: 18px;
-    border-radius: 5px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-  .login-button:hover{
-    background-color: white;
-    color: #1c1c1c;
-    box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
-  }
+}

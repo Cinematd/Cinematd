@@ -2,7 +2,6 @@ import "./moviemap.css";
 
 import React, { useState, useEffect } from 'react';
 
-import { FiArrowRight } from "react-icons/fi";
 
 /**
  * MovieMap component:
@@ -30,11 +29,27 @@ const MovieMap = () => {
     };
   }, []);
 
+  // Muted dark map so the map matches the rest of the site.
+  const darkMapStyle = [
+    { elementType: 'geometry', stylers: [{ color: '#1a1a1c' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#8f8a82' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#000000' }] },
+    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+    { featureType: 'poi.business', elementType: 'all', stylers: [{ visibility: 'off' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2a2a2d' }] },
+    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3a3936' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0b0f14' }] },
+  ];
+
   // Initialize the map.
   const initializeMap = () => {
     const map = new window.google.maps.Map(document.getElementById('map'), {
       center: { lat: 40.730610, lng: -73.935242 },
       zoom: 13,
+      disableDefaultUI: true,
+      zoomControl: true,
+      styles: darkMapStyle,
     });
 
     const placesService = new window.google.maps.places.PlacesService(map);
@@ -101,18 +116,28 @@ const MovieMap = () => {
   // Render the map.
   return (
     <div className="movie-map-container">
-      <label>
-        Enter Zipcode:
-        <div class="search-box">
-        <input
-          type="text"
-          value={zipcode}
-          onChange={(e) => setZipcode(e.target.value)}
-        />                         
+      <div className="map-toolbar">
+        <div className="map-intro">
+          <h1 className="page-title">Movie map</h1>
+          <p>Enter a ZIP code to see the movie theaters nearby.</p>
         </div>
-      </label>
-      <button onClick={searchMovieTheaters} className="search-button" role="button">Search Movie Theaters <FiArrowRight /></button>
-      <div id="map" style={{ height: 'calc(100vh - 40px)', width: '100%' }}></div>
+        <form className="map-search" onSubmit={(e) => { e.preventDefault(); searchMovieTheaters(); }}>
+          <label htmlFor="zipcode">ZIP code</label>
+          <div className="search-box">
+            <input
+              id="zipcode"
+              className="field"
+              type="text"
+              inputMode="numeric"
+              placeholder="e.g. 11201"
+              value={zipcode}
+              onChange={(e) => setZipcode(e.target.value)}
+            />
+          </div>
+          <button type="submit" className="search-button btn-screen">Find theaters</button>
+        </form>
+      </div>
+      <div id="map" style={{ height: '70vh', width: '100%' }}></div>
     </div>
   );
 };

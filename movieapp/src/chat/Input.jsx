@@ -78,7 +78,7 @@ const Input = () => {
 
     return (
         <div className="input">
-            <input type="text" value={input} placeholder="Type something..." onKeyDown={handleKey} onChange={(e) => setInput(e.target.value)}/>
+            <input type="text" value={input} placeholder="Write your next line..." onKeyDown={handleKey} onChange={(e) => setInput(e.target.value)}/>
             <div className="send">
                 <img src="" alt="" />
                 <button onClick={() => {

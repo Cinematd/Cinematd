@@ -65,9 +65,13 @@ function Profile() {
         top: '50%',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-        width: 1000,
-        bgcolor: '#1c1c1c',
-        border: '2px solid #000',
+        width: 'min(720px, 92vw)',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        bgcolor: '#141416',
+        color: '#ece7de',
+        border: '1px solid rgba(236, 231, 222, 0.12)',
+        borderRadius: '4px',
         boxShadow: 24,
         p: 4,
     };
@@ -169,9 +173,9 @@ function Profile() {
     // accordingly.
     if (authJson !== null && authUser !== null && authJson[authUser.email] !== undefined) {
         if (authJson[authUser.email].username !== user) {
-            editButton = <div></div>;
+            editButton = null;
             if (json[authJson[authUser.email].username] !== undefined && json[authJson[authUser.email].username].friends.includes(user)) {
-                followButton = <button className='follow-button' onClick={() => {
+                followButton = <button className='follow-button btn-ghost' onClick={() => {
                     json[authJson[authUser.email].username].friends.splice(json[authJson[authUser.email].username].friends.indexOf(user), 1);
                     const set = async () => {
                         await setDoc(doc(getFirestore(app), "members", "member"), json);
@@ -183,7 +187,7 @@ function Profile() {
                     update();
                 }}>Unfollow</button>;
             } else {
-                followButton = <button className='follow-button' onClick={() => {
+                followButton = <button className='follow-button btn-ghost' onClick={() => {
                     if (json[authJson[authUser.email].username].friends.includes(user)) {
                         alert('You are already friends with this user.');
                     } else {
@@ -200,12 +204,12 @@ function Profile() {
                 }}>Follow</button>;
             }
         } else {
-            followButton = <div></div>;
+            followButton = null;
 
-            signOutButton = <div className="profile-sign-out"><button className="signout-button" onClick={() => redirect(`/signout`)}>Sign out</button></div>
+            signOutButton = <div className="profile-sign-out"><button className="signout-button btn-ghost" onClick={() => redirect(`/signout`)}>Sign out</button></div>
 
             editButton = <div>
-                <Button onClick={handleOpen}>Edit My Profile</Button>
+                <Button variant="outlined" color="inherit" className="profile-edit-button" onClick={handleOpen}>Edit profile</Button>
                 <Modal
                     open={open}
                     onClose={handleClose}
@@ -214,7 +218,7 @@ function Profile() {
                         
                     <Box sx={style}>
                         <Typography id="modal-modal-title" variant="h6" component="h2">
-                            <h1>Edit My Profile</h1>
+                            <span className="modal-title">Edit profile</span>
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                             <h3>Username: {user}</h3>
@@ -444,72 +448,70 @@ function Profile() {
     // Render the profile page.
     return (
         <div className='profile-page-container'>
-        <div className='profile-banner'>
-            <div className="movie-banner-image" style={{backgroundImage: "url(" + banner + ")"}}></div>
+            <div className='profile-banner'>
+                <div className="profile-banner-image" style={{backgroundImage: "url(" + banner + ")"}}></div>
+            </div>
+            <div className="profile-box">
+                <header className="profile-header">
+                    <img className='profile-picture' src={avatarURL} alt=""></img>
+                    <div className="profile-identity">
+                        <div className="user-tab">
+                            <h1 className='profile-name'>{name ? name : user}</h1>
+                            {followButton}
+                        </div>
+                        <p className="profile-handle credit">@{user}</p>
+                        <div className='profile-description'>
+                            <p>{bio}</p>
+                        </div>
+                        <div className="profile-actions">
+                            {editButton}
+                            {signOutButton}
+                        </div>
+                    </div>
+                    <dl className='profile-tab'>
+                        <div className='logged-movies-tab'>
+                            <dt><Link to={`/profile/${user}/logged`} className='watch-link'>Films</Link></dt>
+                            <dd className='profile-stat'>{filmsWatched}</dd>
+                        </div>
+                        <div className='friends-tab'>
+                            <dt><Link to={`/profile/${user}/following`} className='watch-link' onClick={(e) => {
+                                e.preventDefault();
+                                redirect(`/profile/${user}/following`)
+                                window.location.reload();
+                            }}>Following</Link></dt>
+                            <dd className='profile-stat'>{friends}</dd>
+                        </div>
+                        <div className='reviews-tab'>
+                            <dt><Link to={`/profile/${user}/reviews`} className='watch-link' onClick={(e) => {
+                                e.preventDefault();
+                                redirect(`/profile/${user}/reviews`)
+                                window.location.reload();
+                            }}>Reviews</Link></dt>
+                            <dd className='profile-stat'>{reviews}</dd>
+                        </div>
+                    </dl>
+                </header>
+
+                <section className='profile-section'>
+                    <div className='section-head profile-favorite-movies-title'>
+                        <h3>Favorite films</h3>
+                    </div>
+                    <div className='profile-favorite-movies'>
+                        <ol className='poster-row-5'>{favorites}</ol>
+                    </div>
+                </section>
+
+                <section className='profile-section'>
+                    <div className='section-head watchlist-title'>
+                        <h3>Watchlist</h3>
+                        <Link className='section-link watchlist-link' to={`/profile/${user}/watchlist`}>See full watchlist</Link>
+                    </div>
+                    <div className='watchlist-movies'>
+                        <ol className='poster-row-5'>{watchlist}</ol>
+                    </div>
+                </section>
+            </div>
         </div>
-        <div className="profile-box">
-            <div className='profile-tab'>
-                <div className='logged-movies-tab'>
-                    <center>
-                    <h2><Link to={`/profile/${user}/logged`} className='watch-link'>FILMS</Link></h2>
-                    <p style={{fontSize: '30px', color: 'grey'}}>{filmsWatched}</p>
-                    </center>
-                </div>
-                <div className='friends-tab'>
-                    <center>
-                    <h2><Link className='watch-link' onClick={() => {
-                        redirect(`/profile/${user}/following`)
-                        window.location.reload();
-                    }}>FOLLOWING</Link></h2>
-                    <p style={{fontSize: '30px', color: 'grey'}}>{friends}</p>
-                    </center>
-                </div>
-                <div className='reviews-tab'>
-                    <center>
-                    <h2><Link className='watch-link' onClick={() => {
-                        redirect(`/profile/${user}/reviews`)
-                        window.location.reload();
-                    }}>REVIEWS</Link></h2>
-                    <p style={{fontSize: '30px', color: 'grey'}}>{reviews}</p>
-                    </center>
-                </div>
-                {/* <h2><Link className='watch-link' to = {`/profile/${user}/logged`}>FRIENDS</Link></h2>
-                <h2><Link className='watch-link' to = {`/profile/${user}/logged`}>REVIEWS</Link></h2> */}
-
-
-            </div>
-            <p>⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯</p>
-
-            <div className="user-tab">
-                <h1>{user}</h1>
-
-                {/* <div className='follow-button'> */}
-                        {followButton}
-                {/* </div> */}
-            </div> 
-
-            {editButton}
-
-            <img className='profile-picture' src={avatarURL} alt="Profile Avatar"></img>
-                <div className='profile-name'>
-                    <h1>{name}</h1>
-                </div>
-            <div className='profile-description'>
-                <p>{bio}</p>
-            </div>
-            {signOutButton}
-            <div className='profile-favorite-movies-title'><h3>Favorite Movies</h3></div>
-            <div className='profile-favorite-movies'>
-                    <ol>{favorites}</ol>
-            </div>
-            <div className='watchlist-title'>
-                <h3><Link className='watchlist-link' to={`/profile/${user}/watchlist`}>Watchlist</Link></h3>
-            </div>
-            <div className='watchlist-movies'>
-                <ol>{watchlist}</ol>
-            </div>
-        </div>
-    </div>
     )
 }
 export default Profile;

@@ -3,9 +3,8 @@ import '../App.css';
 import MovieQueue from '../util/MovieQueue';
 
 import React, {useState, useEffect} from 'react';
-import { FiArrowRight } from "react-icons/fi";
-import { BiSolidRightArrow } from 'react-icons/bi';
 import { Link } from 'react-router-dom';
+import Footer from '../Footer';
 
 const upcomingUrl = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1';
 
@@ -37,6 +36,7 @@ const Home = () => {
   const [results, setResults] = useState([])
   const [banner, setBanner] = useState('')
   const [title, setTitle] = useState({});
+  const [bannerName, setBannerName] = useState('');
 
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -104,6 +104,7 @@ const Home = () => {
       const random = Math.floor(Math.random() * queue.length);
       const id = queue.get(random) == null ? 0 : queue.get(random).id;
       const title = queue.get(random) == null ? '' : queue.get(random).page_title;
+      const name = queue.get(random) == null ? '' : queue.get(random).title;
 
       fetch('https://api.themoviedb.org/3/movie/' + id + '/images?include_image_language=null', options)
         .then(res => res.json())
@@ -118,99 +119,100 @@ const Home = () => {
           }
           setBanner('https://image.tmdb.org/t/p/w1280' + json.backdrops[index].file_path);
           setTitle(title);
+          setBannerName(name);
         })
         .catch(err => console.error('error:' + err));
     }
   });
 
+  // A single poster in one of the home page rows, captioned with title and year.
+  const posterLink = (movie, key) => (
+    <li key={key}>
+      <Link to={`/movie/${movie == null ? '' : movie.page_title}`}>
+        <img className='MovieImage-size' src={movie == null ? '' : movie.poster} alt=''></img>
+        <span className="poster-caption">
+          {movie == null ? '' : movie.title}
+          <span className="poster-year">{movie == null ? '' : movie.release.split('-')[0]}</span>
+        </span>
+      </Link>
+    </li>
+  );
+
   // Render all this information.
   return (
     <div className="home-container">
-      <div className="banner-background">
-      <Link to={`/movie/${title}`}>
-        <div className="the-banner" style={{backgroundImage: "url(" + banner + ")"}}>
-        <h1 className="primary-heading">
-            <center>
-              Every Movie, Everywhere, All at Once
-            </center>
-          </h1>
-        </div>  
-      </Link>
-
-      <Link to="/films">
-        <button class="secondary-button" role="button">Start Here <FiArrowRight /></button>
-      </Link>
-    </div>
-
-    {/* <div classname="home-banner-container" > */}
-    <div className="UpcomingMovies-text-section-container">
-      <center>
-        <Link className='arrow' to='/films/upcoming'>
-          <h4>Upcoming Movies<BiSolidRightArrow /></h4>
-        </Link>
-      </center>
-    </div>
-
-    <div className="UpcomingMovies-section-container">
-      <div className="UpcomingMovies-images">
-          <Link to={`/movie/${queue.get(0) == null ? '' : queue.get(0).page_title}`}>
-              <img className='MovieImage-size' src={queue.get(0) == null ? '' : queue.get(0).poster} alt=''></img>
+      <section className="hero">
+        <div className="hero-stage">
+          <Link to={`/movie/${title}`} className="hero-frame" aria-label="Open the featured film">
+            <div className="the-banner" style={{backgroundImage: "url(" + banner + ")"}}></div>
           </Link>
-
-          <Link to={`/movie/${queue.get(1) == null ? '' : queue.get(1).page_title}`}>
-              <img className='MovieImage-size'src={queue.get(1) == null ? '' : queue.get(1).poster} alt=''></img>
-          </Link>
-
-          <Link to={`/movie/${queue.get(2) == null ? '' : queue.get(2).page_title}`}>
-              <img className='MovieImage-size'src={queue.get(2) == null ? '' : queue.get(2).poster} alt=''></img>
-          </Link>
-
-          <Link to={`/movie/${queue.get(3) == null ? '' : queue.get(3).page_title}`}>
-              <img className='MovieImage-size'src={queue.get(3) == null ? '' : queue.get(3).poster} alt=''></img>
-          </Link>
-
-          <Link to={`/movie/${queue.get(4) == null ? '' : queue.get(4).page_title}`}>
-              <img className='MovieImage-size'src={queue.get(4) == null ? '' : queue.get(4).poster} alt=''></img>
-          </Link>
-      </div>
-    </div>
-
-    <div className="movie-of-the-day-container" style={{backgroundImage: "url(" + 'https://www.themoviedb.org/t/p/w1280/7HR38hMBl23lf38MAN63y4pKsHz.jpg' + ")"}}>
-      <div className='content-motd'>
-          <Link to={`/movie/past-lives-2023`}>
-              <img className='movie-of-the-day-poster'src={'https://image.tmdb.org/t/p/original/k3waqVXSnvCZWfJYNtdamTgTtTA.jpg'} alt=''></img>
-          </Link>
-          
-          <h1 className='movie-of-the-day-heading'>
-              Movie of the Day
-          </h1>
-
-          <div className="movie-of-the-day-title">
-              <p>{`Past Lives`}</p>
-          </div>
-
-          <div className="movie-of-the-day-description">
-            <p>{`Nora and Hae Sung, two childhood friends, are reunited in New York for one fateful week as they confront notions of destiny, love, and the choices that make a life.`}</p>
-          </div>
-      </div>
-    </div>
-
-    <div className='trending-movies-title'><center><h4>Trending Movies</h4></center></div>
-      <div className='trending-movies-container'>
-        <div className='trending-movies-posters'>
-          {trendingMovies.map((movie, index) => (
-            <Link key={movie.id} to={`/movie/${movie.original_title.replaceAll(' ', '-').toLowerCase() + '-' + movie.release_date.split('-')[0]}`}>
-              <img className='MovieImage-size' src={`https://image.tmdb.org/t/p/original${movie.poster_path}`} alt={`${movie.original_title} Poster`} />
+          {bannerName ? (
+            <Link to={`/movie/${title}`} className="now-showing">
+              <span className="now-showing-label">Now showing</span>
+              <span className="now-showing-title">{bannerName}</span>
             </Link>
-        ))}
-      </div>
-    </div>
+          ) : null}
+        </div>
+        <div className="hero-card">
+          <p className="transition-cue" aria-hidden="true">FADE IN:</p>
+          <h1 className="primary-heading">Every Movie, Everywhere, All at Once</h1>
+          <p className="hero-sub">Keep a diary of every film you watch, build a watchlist, and plan the next night out with friends.</p>
+          <Link to="/films" className="btn-screen">Start here</Link>
+        </div>
+      </section>
 
-    <div>
-      <center><span style={{color: "blanchedalmond"}}>© Cinematd. Co-founded by Amer Issa & Pride Yin</span></center>
+      <section className="home-section">
+        <div className="section-head">
+          <h2>Upcoming movies</h2>
+          <Link className='section-link' to='/films/upcoming'>See all upcoming</Link>
+        </div>
+        <ol className="poster-row">
+          {[0, 1, 2, 3, 4].map((i) => posterLink(queue.get(i), i))}
+        </ol>
+      </section>
+
+      <section className="home-section">
+        <div className="section-head">
+          <h2>Movie of the day</h2>
+        </div>
+        <div className="movie-of-the-day-container lobby-card">
+          <div className="motd-still" style={{backgroundImage: "url(" + 'https://www.themoviedb.org/t/p/w1280/7HR38hMBl23lf38MAN63y4pKsHz.jpg' + ")"}}></div>
+          <div className='content-motd'>
+            <Link to={`/movie/past-lives-2023`} className="motd-poster-link">
+              <img className='movie-of-the-day-poster' src={'https://image.tmdb.org/t/p/original/k3waqVXSnvCZWfJYNtdamTgTtTA.jpg'} alt='Past Lives poster'></img>
+            </Link>
+            <div className="motd-text">
+              <h3 className="movie-of-the-day-title">Past Lives</h3>
+              <p className="credit">Directed by Celine Song</p>
+              <p className="movie-of-the-day-description">Nora and Hae Sung, two childhood friends, are reunited in New York for one fateful week as they confront notions of destiny, love, and the choices that make a life.</p>
+              <Link to={`/movie/past-lives-2023`} className="btn-ghost">View film</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="home-section">
+        <div className="section-head">
+          <h2>Trending movies</h2>
+          <Link className='section-link' to='/films'>Browse all films</Link>
+        </div>
+        <ol className="poster-row">
+          {trendingMovies.map((movie) => (
+            <li key={movie.id}>
+              <Link to={`/movie/${movie.original_title.replaceAll(' ', '-').toLowerCase() + '-' + movie.release_date.split('-')[0]}`}>
+                <img className='MovieImage-size' src={`https://image.tmdb.org/t/p/original${movie.poster_path}`} alt='' />
+                <span className="poster-caption">
+                  {movie.title ? movie.title : movie.original_title}
+                  <span className="poster-year">{movie.release_date ? movie.release_date.split('-')[0] : ''}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <Footer />
     </div>
-      
-  </div>  
   )
 };
 

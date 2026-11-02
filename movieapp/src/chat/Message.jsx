@@ -8,7 +8,7 @@ import { AuthContext } from "../context/AuthContext";
  * message is always displayed.
  */
 
-const Message = ({ message }) => {
+const Message = ({ message, partner }) => {
     // Pair programming: Pride & Amer.
     const { authUser } = useContext(AuthContext);
 
@@ -18,17 +18,22 @@ const Message = ({ message }) => {
         ref.current?.scrollIntoView({ behavior: "smooth" });
     }, [message]);
 
+    const isOwner = message.senderId === (authUser === null ? "" : authUser.uid);
+
+    // Set like screenplay dialogue: the speaker's name as the character cue,
+    // the time as a parenthetical, then the line itself.
     return (
         <div
             ref={ref}
-            className={`message ${message.senderId === (authUser === null ? "" : authUser.uid) ? "owner" : ""}`}
+            className={`message ${isOwner ? "owner" : ""}`}
             >
             <div className="messageInfo">
                 <img
                 src={message.avatar}
                 alt=""
                 />
-                <span>{message.time}</span>
+                <span className="message-cue">{isOwner ? 'You' : (partner || '')}</span>
+                <span className="message-time">{message.time}</span>
             </div>
             <div className="messageContent">
                 <p>{message.message}</p>

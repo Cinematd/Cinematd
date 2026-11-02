@@ -1,35 +1,18 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Courier Prime', sans-serif !important;
-  }
- 
-  body {
-    max-width: 100%;
-    overflow-x: hidden;
-    background-color: #1c1c1c;
-  }
+/* Watchlist: everything the member has saved to see. */
 
 .watchlist-page-container {
-    padding-top: 100px;
-    background-color: #1c1c1c;
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    padding-bottom: 1200px;
-
+  padding: calc(var(--nav-h) + 40px) var(--gutter) 96px;
 }
 
-.watchlist-box {
-    background-image: linear-gradient(#1c1c1c,#636363);
-    width:1500px;
-    height: auto;
-    
+.watchlist-page-container .watchlist-box {
+  max-width: var(--measure);
+  margin: 0 auto;
 }
 
-.title h1{
-    padding-left: 30px;
-    margin-bottom: 30px;
-    color: white;
+.watchlist-page-container .title {
+  margin-bottom: 36px;
+}
+
+.watchlist-page-container .title .page-title {
+  margin-bottom: 0;
 }

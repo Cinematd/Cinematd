@@ -57,13 +57,6 @@ const decades = [
     { decade: '1900s', start: '1900-01-01', end: '1909-12-31'}
 ]
 
-const dropdownStyle = {
-    backgroundColor: '#1c1c1c',
-    color: '#ffffff',
-    width: 'auto',
-    // Add other styles as needed
-};
-
 const url = window.location.href.split('/');
 let path = [];
 
@@ -232,6 +225,7 @@ function MoviesPage() {
                     }
                     const map = {
                         title: results[i][j].original_title,
+                        year: release,
                         page_title: results[i][j].original_title.replaceAll(' ', '-').toLowerCase() + '-' + release,
                         poster: 'https://image.tmdb.org/t/p/original' + results[i][j].poster_path,
                         id: results[i][j].id
@@ -245,7 +239,7 @@ function MoviesPage() {
                 if (movie === undefined) {
                     continue;
                 }
-                movies.push(<Link to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster}></img></Link>);
+                movies.push(<Link key={movie.id} to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster} alt=''></img><span className='poster-caption'>{movie.title}<span className='poster-year'>{movie.year}</span></span></Link>);
             }
             setMovies(movies);
             setResults(res);
@@ -260,7 +254,7 @@ function MoviesPage() {
             if (movie === undefined) {
                 continue;
             }
-            movies.push(<Link to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster}></img></Link>);
+            movies.push(<Link key={movie.id} to={`/movie/${movie.page_title}`}><img className='poster-sizing' src={movie.poster} alt=''></img><span className='poster-caption'>{movie.title}<span className='poster-year'>{movie.year}</span></span></Link>);
         }
     }
 
@@ -377,11 +371,11 @@ function MoviesPage() {
         <div className="movies-page-container">
             <div className="movies-box">
                 <div className="content-nav">
-                    <h1>Films</h1>
+                    <h1 className="page-title">Films</h1>
 
                     <div className="filters">
-                        <div class="search-box">
-                            <input type="text" placeholder="  Search a film:" onChange={(e) => {
+                        <div className="search-box">
+                            <input type="search" aria-label="Search films" placeholder="Search films" onChange={(e) => {
                                 query(e.target.value);
                             }} onClick={
                                 () => {
@@ -393,7 +387,7 @@ function MoviesPage() {
                         {queryBox}
                         
                         <label className='genre-order'>
-                            Genre:
+                            <span>Genre</span>
                             <select className='genre-dropdown' onChange={(e) => { 
                                 if (e.target.value === '') {
                                     if (window.location.href.split('/').length > 4) {
@@ -416,13 +410,13 @@ function MoviesPage() {
                                 } else {
                                     window.location.assign('/films/' + e.target.value.toLowerCase());
                                 }
-                                }} style={dropdownStyle}>
+                                }}>
                                 {filters}
                                 {/* Add more genre options */}
                             </select>
                         </label>
                         <label className='popularity-order'>
-                            Popularity Order:
+                            <span>Popularity</span>
                             <select className='popularity-dropdown' onChange={(e) => {
                                 if (window.location.href.includes('popularity-desc')) {
                                     window.location.assign(window.location.href.replace('popularity-desc', e.target.value));
@@ -435,12 +429,12 @@ function MoviesPage() {
                                         window.location.assign(window.location.href + '/' + e.target.value);
                                     }
                                 }
-                            }} style={dropdownStyle}>
+                            }}>
                                 {pOrder}
                             </select>
                         </label>
                         <label className='decade-order'>
-                            Decade:
+                            <span>Decade</span>
                             <select className='decade-dropdown' onChange={(e) => {
                                 if (e.target.value === '') {
                                     let path = window.location.href.replace(window.location.href.split('/')[6], '');
@@ -457,17 +451,17 @@ function MoviesPage() {
                                         window.location.assign(window.location.href + '/popularity-desc/' + e.target.value);
                                     }
                                 }
-                            }} style={dropdownStyle}>
+                            }}>
                                 {rOrder}
                             </select>
                         </label>
                     </div>
                 </div>
                 <div className="movieposters">
-                    <ol>{movies}</ol>
+                    <ol className="poster-grid">{movies}</ol>
                 </div>
                 <div className="expand-button">
-                    <button onClick={() => setMovieIndex(movieIndex + 30)} className="expand" role="button">
+                    <button onClick={() => setMovieIndex(movieIndex + 30)} className="expand btn-ghost">
                         Load more
                     </button>
                 </div>

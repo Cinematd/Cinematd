@@ -1,306 +1,254 @@
+/* Profile page: a still from the member's taste, then their card and shelves. */
 
+.profile-page-container {
+  padding-bottom: 96px;
+}
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Courier Prime', sans-serif !important;
-  }
- 
-  body {
-    max-width: 100%;
-    overflow-x: hidden;
-    background-color: #1c1c1c;
-    
-    
-  }
+.profile-banner {
+  padding-top: var(--nav-h);
+}
 
-  .profile-page-container{
-    background-color: #1c1c1c;
-    height: auto;
-    padding-top: 100px;
-    justify-content: center;
-    display: flex;
-    flex-wrap: wrap;
+.profile-banner-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.39 / 1;
+  max-height: 46vh;
+  min-height: 220px;
+  background-color: var(--stage);
+  background-size: cover;
+  background-position: center 30%;
+}
 
-    
+.profile-banner-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--theatre) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.15) 100%);
+}
 
-  }
-  .profile-page-container .profile-box{
-    background-image: linear-gradient(#1c1c1c,#636363);    
-    width: 1300px;
-    height: auto;
-    padding-top: 25px;
-    padding-left: 25px;
-    color: white;
-    flex-direction: column;
-    overflow-wrap: break-word;
-    flex-wrap: wrap;
+.profile-page-container .profile-box {
+  position: relative;
+  z-index: 1;
+  max-width: calc(var(--measure) + var(--gutter) * 2);
+  margin: -96px auto 0;
+  padding: 0 var(--gutter);
+  color: var(--silver);
+  overflow-wrap: break-word;
+}
 
-  }
+/* Header: avatar, identity, stats */
+.profile-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 32px;
+  align-items: end;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--rule);
+}
 
-  .signout-button{
-    color: white ;
-    background-color: #1c1c1c;
-    width: 90px;
-    height: 40px;
-    border: none;
-    font-size: 18px;
-    border-radius: 5px;
-  }
-  .signout-button:hover{
-    background-color: white;
-    color: #1c1c1c;
-    box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
-  }
+.profile-page-container .profile-picture {
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--stage);
+  border: 4px solid var(--theatre);
+  box-shadow: 0 0 0 1px var(--rule-strong);
+}
 
-  .choose-avatar-button{
-    width: 600px;
-  }
+.profile-identity {
+  min-width: 0;
+}
 
+.user-tab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+}
 
-  h1 {
-    color: white;
-  }
+.profile-name {
+  font-size: var(--text-3xl);
+  font-weight: 400;
+  line-height: 1;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+}
 
+/* The handle reads like a character cue. */
+.profile-handle {
+  margin-top: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--silver);
+}
 
+.profile-description {
+  max-width: 60ch;
+  margin-top: 12px;
+  color: rgba(236, 230, 218, 0.82);
+}
 
-  h3 {
-    color: white;
+.profile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.profile-actions:empty {
+  display: none;
+}
+
+.profile-edit-button.MuiButton-root {
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 2px;
+  border-color: var(--rule-strong);
+  background: transparent;
+  font-family: var(--script);
+  font-size: var(--text-md);
+}
+
+.profile-edit-button.MuiButton-root:hover {
+  border-color: var(--silver);
+  background: rgba(236, 230, 218, 0.06);
+}
+
+/* Stats: a small typed table, like the cover of a script. */
+.profile-tab {
+  display: flex;
+  gap: 0;
+  margin: 0;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--stage);
+}
+
+.profile-tab > div {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  min-width: 108px;
+  padding: 14px 20px 12px;
+}
+
+.profile-tab > div + div {
+  border-left: 1px solid var(--rule);
+}
+
+.profile-tab dt {
+  font-weight: 400;
+}
+
+.watch-link {
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  color: var(--dust);
+}
+
+.watch-link:hover {
+  color: var(--tungsten);
+}
+
+.profile-stat {
+  font-family: var(--script);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  line-height: 1;
+  margin-bottom: 8px;
+  color: var(--silver);
+}
+
+/* Shelves */
+.profile-section {
+  margin-top: 64px;
+}
+
+.poster-row-5 {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 20px;
+}
+
+/* Buttons used on profile */
+.follow-button,
+.signout-button {
+  min-height: 40px;
+}
+
+/* Edit profile modal fields */
+.names-textbox,
+.bio-textbox {
+  width: 100%;
+  min-height: 44px;
+  margin: 6px 0 18px;
+  padding: 10px 14px;
+  background: var(--theatre);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--silver);
+}
+
+.names-textbox:focus,
+.bio-textbox:focus {
+  outline: none;
+  border-color: var(--tungsten);
+}
+
+.MuiBox-root h3 {
+  font-family: var(--script);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--dust);
+}
+
+.choose-avatar-button {
+  width: 100%;
+  margin: 8px 0 24px;
+  color: var(--dust);
+  font-size: var(--text-sm);
+}
+
+.submit-changes-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 26px;
+  background: var(--paper);
+  border: 1px solid var(--paper);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 3px var(--paper), inset 0 0 0 4px rgba(29, 26, 21, 0.35);
+  color: var(--ink);
+  font-family: var(--script);
+  font-weight: 700;
+}
+
+.submit-changes-button:hover {
+  background: #f6f1e5;
+}
+
+@media (max-width: 860px) {
+  .profile-header {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
   }
 
   .profile-tab {
-    display: flex;
-    flex-direction: row;
+    grid-column: 1 / -1;
   }
 
-  .user-tab {
-    display: flex;
+  .profile-tab > div {
+    flex: 1;
+    min-width: 0;
   }
 
-  .logged-movies-tab {
-    position: relative;
-    display: flex;
+  .profile-page-container .profile-picture {
+    width: 112px;
+    height: 112px;
   }
 
-  .friends-tab {
-    position: relative;
-    margin-left: 500px;
+  .poster-row-5 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .reviews-tab {
-    position: relative;
-    margin-left: 450px;
-  }
-
-    .edit-button{
-      border: transparent;
-      background-color: transparent;
-    }
-    
-  .follow-button {
-    position: relative;
-    left: 800px;
-    color: white ;
-    background-color: #1c1c1c;
-    width: 90px;
-    height: 40px;
-    border: none;
-    font-size: 18px;
-    border-radius: 5px;
-
-  }
-  .follow-button:hover{
-    background-color: white;
-    color: #1c1c1c;
-    box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
-  }
-
-  .profile-page-container .profile-box .profile-picture {
-    line-height: 0;		/* remove line-height */ 
-    display: inline-block;	/* circle wraps image */
-    margin: 5px;
-    border: 1px solid rgba(200,200,200,0.4);
-    border-radius: 50%;	/* relative value */
-    /*box-shadow: 0px 0px 5px rgba(0,0,0,0.4);*/
-    transition: linear 0.25s;
-    height: 256px;
-    width: 256px;
-    float: left;
-    order: 1;
-    display: flex;
-    margin-top: 50px;
-    object-fit: cover;
-
-  }
-  .profile-name{
-    order: 2;
-    /* padding-bottom: 30px; */
-    display: flex;
-    /* flex: 1 1 50%; */
-    margin-left: 310px;
-    margin-top: 80px;
-
-  }
-
-  .profile-description{
-    order: 3;
-    font-size: 18px;
-    width: 720px;
-    height: auto;
-    min-height: 250px;
-    /* margin-left: 425px; */
-    display: flex;
-    overflow:visible;
-    margin-left: 310px;
-    color: #b5b5b5;
-  }
-
-  .filmswatched-link{
-    margin-bottom: 15px;
-    text-decoration: none;
-    /* padding-left: 300px; */
-    overflow:visible;
-    order: 4;
-    margin-left: 300px;
-  }
-
-  .watch-link {
-    color: white;
-    font-size: 24px;
-
-  }
-
-  .watch-link:hover {
-    color: grey;
-    text-decoration: none;
-  }
-
-  .watchlist-link {
-    color: white;
-    font-size: 30px;
-
-  }
-
-  .watchlist-link:hover {
-    color: grey;
-    text-decoration: none;
-  }
-
-
-  .filmswatched-link:hover{
-    text-decoration: none;
-    color: white;
-  }
-
-  .profile-sign-out {
-    margin-left: 10px;
-  }
-
-  .profile-favorite-movies-title {
-    font-size: 32px;
-    padding-top: 20px;
-    /* align-items: center; */
-    /* justify-content: center; */
-  }
-
-  .profile-favorite-movies {
-    height: auto;
-    display: flex;
-  }
-
-  .poster-sizing {
-    width: 214px;
-    height: 320px;
-    margin-left: 20px;
-    margin-top: 20px;
-    box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 30px 4px;
-    
-  }
-  .watchlist-title {
-    font-size: 32px;
-    align-items: center;
-    justify-content: center;
-    margin-top: 30px;
-  }
-
-
-  .expand-button{
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    /* font-size: 24px; */
-  }
-
-  .expand-button .expand{
-    align-items: center;
-    background-color: transparent;
-    border-radius: 12px;
-    box-shadow: transparent 0 0 0 3px,rgba(18, 18, 18, .1) 0 6px 20px;
-    box-sizing: border-box;
-    color: white;
-    cursor: pointer;
-    display: inline-flex;
-    /* flex: 1 1 auto; */
-    justify-content: center;
-    line-height: 1;
-    margin: 0;
-    outline: none;
-    text-align: center;
-    text-decoration: none;
-    transition: box-shadow .2s,-webkit-box-shadow .2s;
-    white-space: nowrap;
-    border: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
 }
-
-.names-textbox{
-  width: 300px;
-  border-color: white;
-  border: 1px solid white;
-  color: white;
-}
-
-.bio-textbox{
-  width: 500px;
-  border-color: white;
-  border: 1px solid white;
-  color: white;
-
-}
-
-.submit-changes-button{
-    margin-top: 10px;
-    align-items: center;
-    background-color: #262626;
-    border-radius: 12px;
-    box-shadow: transparent 0 0 0 3px,rgba(18, 18, 18, .1) 0 6px 20px;
-    box-sizing: border-box;
-    color: white;
-    cursor: pointer;
-    display: inline-flex;
-    /* flex: 1 1 auto; */
-    justify-content: center;
-    line-height: 1;
-    outline: none;
-    padding: 1rem 1.2rem;
-    text-align: center;
-    text-decoration: none;
-    transition: box-shadow .2s,-webkit-box-shadow .2s;
-    white-space: nowrap;
-    border: 0;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    
-}
-.submit-changes-button:hover {
-  box-shadow: #121212 0 10px 50px 3px, transparent 0 0 0 0;
-  background-color: white;
-  color: black; 
-}
-
-
-
-

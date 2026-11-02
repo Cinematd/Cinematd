@@ -134,10 +134,10 @@ function Watchlist() {
         <div className="watchlist-page-container">
             <div className="watchlist-box">
                 <div className='title'>
-                     <h1>{`${user}'s Watchlist`}</h1>
+                     <h1 className='page-title'>{`${user}'s watchlist`}</h1>
                 </div>
                 <div className='watchlist-posters'>
-                    <ol>{movies}</ol>
+                    <ol className='poster-grid'>{movies}</ol>
                 </div>
 
             </div>

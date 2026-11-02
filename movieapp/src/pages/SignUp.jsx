@@ -184,7 +184,8 @@ const SignUp = () => {
   return (
     <div className="sign-up-container">
       <form onSubmit={signUp}>
-        <h1>Create Account</h1>
+        <h1>Create an account</h1>
+        <p className="auth-sub">Start your film diary and find friends to watch with.</p>
         <div className="userbox">
         <TextField 
             className="textbox" 
@@ -219,8 +220,8 @@ const SignUp = () => {
 
             />
         </div>
-        <div><Link to="/signin" className="link">Already have an account? Sign in</Link></div>
-        <button type="submit">Sign Up</button>
+        <button className="btn-screen" type="submit">Sign up</button>
+        <div className="auth-switch"><Link to="/signin" className="link">Already have an account? Log in</Link></div>
       </form>
     </div>
   );

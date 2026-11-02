@@ -77,10 +77,10 @@ const AuthDetails = () => {
       {authUser ? (
         <>
           <h2>Are you sure you want to sign out?</h2>
-          <button className='signoutpage-button'onClick={userSignOut}>Sign Out</button>
+          <button className='signoutpage-button btn-screen' onClick={userSignOut}>Sign out</button>
         </>
       ) : (
-        <p>Signed Out</p>
+        <p>You're signed out.</p>
       )}
     </div>
   );
