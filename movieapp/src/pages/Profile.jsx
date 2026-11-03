@@ -16,6 +16,7 @@ import Modal from '@mui/material/Modal';
 import { defaultAvatar } from '../util/avatar';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 import { memberPosterUrl, fallBackTo } from '../util/posters';
+import ProfileTvShelves from './ProfileTvShelves';
 
 let todaysDate = new Date().toLocaleDateString().split('/');
 todaysDate = [parseInt(todaysDate[0]), parseInt(todaysDate[1]), parseInt(todaysDate[2])];
@@ -465,6 +466,14 @@ function Profile() {
         navigate(path);
     }
 
+    // Shows logged as a whole or by season (each show counted once).
+    const showsLogged = json[user] !== undefined
+        ? new Set([
+            ...(json[user].shows || []).filter(Boolean).map(e => String(e.id)),
+            ...(json[user].seasons || []).filter(Boolean).map(e => String(e.showId))
+        ]).size
+        : 0;
+
     // Render the profile page.
     return (
         <div className='profile-page-container'>
@@ -492,6 +501,10 @@ function Profile() {
                         <div className='logged-movies-tab'>
                             <dt><Link to={`/profile/${user}/logged`} className='watch-link'>Films</Link></dt>
                             <dd className='profile-stat'>{filmsWatched}</dd>
+                        </div>
+                        <div className='shows-tab'>
+                            <dt><Link to={`/profile/${user}/shows`} className='watch-link'>Shows</Link></dt>
+                            <dd className='profile-stat'>{showsLogged}</dd>
                         </div>
                         <div className='friends-tab'>
                             <dt><Link to={`/profile/${user}/following`} className='watch-link' onClick={(e) => {
@@ -523,13 +536,15 @@ function Profile() {
 
                 <section className='profile-section'>
                     <div className='section-head watchlist-title'>
-                        <h3>Watchlist</h3>
-                        <Link className='section-link watchlist-link' to={`/profile/${user}/watchlist`}>See full watchlist</Link>
+                        <h3>Film watchlist</h3>
+                        <Link className='section-link watchlist-link' to={`/profile/${user}/watchlist`}>See full film watchlist</Link>
                     </div>
                     <div className='watchlist-movies'>
                         <ol className='poster-row-5'>{watchlist}</ol>
                     </div>
                 </section>
+
+                <ProfileTvShelves member={json[user]} user={user} />
             </div>
         </div>
     )

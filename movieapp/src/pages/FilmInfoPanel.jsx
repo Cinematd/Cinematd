@@ -3,6 +3,7 @@ import './filminfopanel.css';
 import React, { useEffect, useRef, useState } from 'react';
 import { tmdbImage } from '../util/tmdb';
 import { defaultAvatar } from '../util/avatar';
+import { seasonLabel } from '../util/tv';
 
 const options = {
     method: 'GET',
@@ -101,6 +102,37 @@ function releasesOf(details) {
     return { festival: festival.sort(byDate), theatrical: theatrical.sort(byDate) };
 }
 
+// TV credits come as aggregate_credits (one row per person across all
+// episodes); turn them into the same shape as film credits.
+function normaliseTvCredits(aggregate) {
+    const cast = ((aggregate && aggregate.cast) || []).map(person => {
+        const characters = (person.roles || []).map(r => r.character).filter(Boolean);
+        const episodes = person.total_episode_count;
+        return {
+            credit_id: 'tv-' + person.id,
+            id: person.id,
+            name: person.name,
+            profile_path: person.profile_path,
+            order: person.order,
+            character: characters.join(' / ') + (episodes ? ` (${episodes} episode${episodes === 1 ? '' : 's'})` : '')
+        };
+    });
+    const crew = [];
+    for (const person of (aggregate && aggregate.crew) || []) {
+        for (const job of person.jobs || []) {
+            crew.push({ id: person.id, name: person.name, department: person.department, job: job.job });
+        }
+    }
+    return { cast, crew };
+}
+
+// US TV rating (TV-MA, TV-14, ...) from content_ratings, if TMDB has one.
+function usTvRating(details) {
+    const results = details && details.content_ratings ? details.content_ratings.results || [] : [];
+    const us = results.find(r => r.iso_3166_1 === 'US');
+    return us && us.rating ? us.rating : null;
+}
+
 // US certification (PG-13, R, ...) from release_dates, if TMDB has one.
 function usCertification(details) {
     const results = details && details.release_dates ? details.release_dates.results : [];
@@ -118,7 +150,8 @@ function usCertification(details) {
  * On phones it opens from a menu button. Escape, the close button or a tap
  * outside closes it.
  */
-export default function FilmInfoPanel({ filmId, title }) {
+export default function FilmInfoPanel({ filmId, title, mediaType = 'movie' }) {
+    const isTv = mediaType === 'tv';
     const [open, setOpen] = useState(false);
     const [pinned, setPinned] = useState(false);
     const [tab, setTab] = useState('cast');
@@ -144,10 +177,16 @@ export default function FilmInfoPanel({ filmId, title }) {
         setCredits(null);
         setDetails(null);
         setFailed(false);
-        Promise.all([
-            fetch(`https://api.themoviedb.org/3/movie/${filmId}/credits?language=en-US`, options).then(res => (res.ok ? res.json() : Promise.reject(res.status))),
-            fetch(`https://api.themoviedb.org/3/movie/${filmId}?language=en-US&append_to_response=release_dates`, options).then(res => (res.ok ? res.json() : Promise.reject(res.status)))
-        ]).then(([creditsJson, detailsJson]) => {
+        const get = (url) => fetch(url, options).then(res => (res.ok ? res.json() : Promise.reject(res.status)));
+        const request = isTv
+            // One request for a show: details, credits across all episodes, ratings.
+            ? get(`https://api.themoviedb.org/3/tv/${filmId}?language=en-US&append_to_response=aggregate_credits,content_ratings`)
+                .then(show => [normaliseTvCredits(show.aggregate_credits), show])
+            : Promise.all([
+                get(`https://api.themoviedb.org/3/movie/${filmId}/credits?language=en-US`),
+                get(`https://api.themoviedb.org/3/movie/${filmId}?language=en-US&append_to_response=release_dates`)
+            ]);
+        request.then(([creditsJson, detailsJson]) => {
             if (!cancelled) {
                 setCredits(creditsJson);
                 setDetails(detailsJson);
@@ -158,7 +197,7 @@ export default function FilmInfoPanel({ filmId, title }) {
             }
         });
         return () => { cancelled = true; };
-    }, [filmId]);
+    }, [filmId, isTv]);
 
     // Escape closes the drawer.
     useEffect(() => {
@@ -224,7 +263,25 @@ export default function FilmInfoPanel({ filmId, title }) {
     const shownCast = showAllCast ? cast : cast.slice(0, CAST_PREVIEW);
     const crew = credits ? groupCrew(credits.crew) : [];
 
-    const detailRows = details ? [
+    const tvDetailRows = details && isTv ? [
+        ['Episode length', details.episode_run_time && details.episode_run_time.length ? formatRuntime(details.episode_run_time[0]) : null],
+        ['First aired', formatDate(details.first_air_date)],
+        ['Last aired', formatDate(details.last_air_date)],
+        ['Seasons', details.number_of_seasons],
+        ['Episodes', details.number_of_episodes],
+        ['Rated', usTvRating(details)],
+        ['Genres', (details.genres || []).map(g => g.name).join(', ')],
+        ['Created by', (details.created_by || []).map(c => c.name).join(', ')],
+        ['Network', (details.networks || []).map(n => n.name).join(', ')],
+        ['Original title', details.original_name !== details.name ? details.original_name : null],
+        ['Language', (details.spoken_languages || []).map(l => l.english_name || l.name).join(', ')],
+        ['Country', (details.production_countries || []).map(c => c.name).join(', ')],
+        ['Studios', (details.production_companies || []).map(c => c.name).join(', ')],
+        ['Type', details.type],
+        ['Status', details.status],
+    ].filter(([, value]) => value) : null;
+
+    const detailRows = tvDetailRows ? tvDetailRows : details ? [
         ['Runtime', formatRuntime(details.runtime)],
         ['Released', formatDate(details.release_date)],
         ['Rated', usCertification(details)],
@@ -238,9 +295,11 @@ export default function FilmInfoPanel({ filmId, title }) {
         ['Status', details.status],
     ].filter(([, value]) => value) : [];
 
-    const releases = details ? releasesOf(details) : { festival: [], theatrical: [] };
+    const releases = details && !isTv ? releasesOf(details) : { festival: [], theatrical: [] };
+    const seasons = details && isTv ? details.seasons || [] : [];
+    const nextEpisode = details && isTv ? details.next_episode_to_air : null;
 
-    const tabs = [['cast', 'Cast'], ['crew', 'Crew'], ['details', 'Details'], ['releases', 'Releases']];
+    const tabs = [['cast', 'Cast'], ['crew', 'Crew'], ['details', 'Details'], isTv ? ['releases', 'Air dates'] : ['releases', 'Releases']];
 
     return (
         <>
@@ -370,7 +429,46 @@ export default function FilmInfoPanel({ filmId, title }) {
                         </section>
                     ) : null}
 
-                    {credits && details && tab === 'releases' ? (
+                    {credits && details && tab === 'releases' && isTv ? (
+                        <section id="film-info-section-releases" role="tabpanel" aria-labelledby="film-info-tab-releases">
+                            <div className="film-info-dept">
+                                <h3 className="film-info-dept-name">Next episode</h3>
+                                {nextEpisode ? (
+                                    <dl className="film-info-rows">
+                                        <div className="film-info-row">
+                                            <dt>{nextEpisode.air_date ? formatDate(nextEpisode.air_date) : 'TBA'}</dt>
+                                            <dd>
+                                                {nextEpisode.name || 'TBA'}
+                                                <span className="film-info-sub">{`Season ${nextEpisode.season_number}, episode ${nextEpisode.episode_number}`}</span>
+                                            </dd>
+                                        </div>
+                                    </dl>
+                                ) : (
+                                    <p className="film-info-tba">{details.status === 'Ended' || details.status === 'Canceled' ? 'The show has ended' : 'TBA'}</p>
+                                )}
+                            </div>
+                            <div className="film-info-dept">
+                                <h3 className="film-info-dept-name">Seasons</h3>
+                                {seasons.length === 0 ? (
+                                    <p className="film-info-tba">TBA</p>
+                                ) : (
+                                    <dl className="film-info-rows">
+                                        {seasons.map(season => (
+                                            <div key={season.id || season.season_number} className="film-info-row">
+                                                <dt>{season.air_date ? formatDate(season.air_date) : 'TBA'}</dt>
+                                                <dd>
+                                                    {seasonLabel(season)}
+                                                    {season.episode_count ? <span className="film-info-sub">{`${season.episode_count} episode${season.episode_count === 1 ? '' : 's'}`}</span> : null}
+                                                </dd>
+                                            </div>
+                                        ))}
+                                    </dl>
+                                )}
+                            </div>
+                        </section>
+                    ) : null}
+
+                    {credits && details && tab === 'releases' && !isTv ? (
                         <section id="film-info-section-releases" role="tabpanel" aria-labelledby="film-info-tab-releases">
                             <div className="film-info-dept">
                                 <h3 className="film-info-dept-name">Festivals and premieres</h3>

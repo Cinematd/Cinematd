@@ -16,6 +16,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { getFirestore, collection, getDocs, setDoc, doc } from "firebase/firestore";
 import { resizeTmdbUrl } from '../util/tmdb';
+import { showPath } from '../util/tv';
 
 /**
  * IndividualReviewPage component:
@@ -54,7 +55,9 @@ function IndividualReviewPage() {
                 const url = href.split('/');
 
                 if (review.reviewId === url[url.length - 1]) {
-                    setPath('/movie/' + review.title.replaceAll(' ', '-').toLowerCase() + '-' + review.year);
+                    setPath(review.type === 'tv'
+                        ? showPath(review.showId, review.title)
+                        : '/movie/' + review.title.replaceAll(' ', '-').toLowerCase() + '-' + review.year);
                     setReview(review);
                     setUpdated(true);
                 }

@@ -5,6 +5,7 @@ import MovieQueue from '../util/MovieQueue';
 import React, {useState, useEffect, useRef} from 'react';
 import { Link } from 'react-router-dom';
 import Footer from '../Footer';
+import HomeTvRows from './HomeTvRows';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 const upcomingUrl = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1';
@@ -214,6 +215,8 @@ const Home = () => {
           ))}
         </ol>
       </section>
+
+      <HomeTvRows />
 
       <Footer />
     </div>

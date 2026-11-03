@@ -2,6 +2,7 @@ import "./moviespagestyle.css";
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { parseBrowsePath, buildBrowsePath } from '../util/browsePath';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 
 // import MovieCache from '../util/MovieCache';
@@ -125,34 +126,15 @@ function link(i) {
     return 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=' + i;
 }
 
-/**
- * Films page filters live in the URL path, after the hash (the site uses
- * hash routing so it works on GitHub Pages):
- *   #/films[/upcoming][/<genre>[/<popularity>[/<decade>]]]
- * e.g. #/films/action, #/films/all/popularity-asc/1990s, #/films/upcoming/drama
- * "all" and "popularity-desc" are the defaults and are left off the end.
- */
+// Films filters in the URL path: #/films[/upcoming][/<genre>[/<popularity>[/<decade>]]]
+// (see util/browsePath.js).
 export function parseFilmsPath(pathname) {
-    const rest = pathname.split('/').filter(Boolean).slice(1);
-    const upcoming = rest[0] === 'upcoming';
-    if (upcoming) {
-        rest.shift();
-    }
-    return {
-        upcoming: upcoming,
-        genre: rest[0] && rest[0] !== 'all' ? rest[0] : '',
-        popularity: rest[1] === 'popularity-asc' ? 'popularity-asc' : 'popularity-desc',
-        decade: rest[2] || ''
-    };
+    const { special, ...rest } = parseBrowsePath(pathname, 'upcoming');
+    return { upcoming: special, ...rest };
 }
 
-export function buildFilmsPath({ upcoming, genre, popularity, decade }) {
-    const defaults = ['all', 'popularity-desc', ''];
-    const tail = [genre || 'all', popularity || 'popularity-desc', upcoming ? '' : (decade || '')];
-    while (tail.length > 0 && tail[tail.length - 1] === defaults[tail.length - 1]) {
-        tail.pop();
-    }
-    return '/' + ['films'].concat(upcoming ? ['upcoming'] : [], tail).join('/');
+export function buildFilmsPath({ upcoming, ...rest }) {
+    return buildBrowsePath('films', 'upcoming', { special: upcoming, ...rest });
 }
 
 /**

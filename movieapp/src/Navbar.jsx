@@ -82,6 +82,7 @@ export default function Navbar() {
       <ul className="nav-links">
           <CustomLink to="/home">Home</CustomLink>
           <CustomLink to="/films">Films</CustomLink>
+          <CustomLink to="/tv">TV</CustomLink>
           <CustomLink to="/moviemap">Movie Map</CustomLink>
           <CustomLink to="/members">Members</CustomLink>
           <CustomLink to="/chat">Chat</CustomLink>
