@@ -19,6 +19,10 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 // import UpcomingMovies from './pages/UpcomingMovies';
 import Watchlist from './pages/Watchlist';
+import TVPage from './pages/TVPage';
+import ShowPage from './pages/ShowPage';
+import ShowsWatched from './pages/ShowsWatched';
+import TVWatchlist from './pages/TVWatchlist';
 
 import { Route, Routes } from 'react-router-dom';
 import { useContext } from 'react';
@@ -51,12 +55,21 @@ function App() {
         <Route path="/profile/:name" element={<Profile />} />
         <Route path="/profile/:name/logged" element={<FilmsWatched />} />
         <Route path="/profile/:name/watchlist" element={<Watchlist />} />
+        <Route path="/profile/:name/watchlist/tv" element={<TVWatchlist />} />
+        <Route path="/profile/:name/shows" element={<ShowsWatched />} />
         <Route path="/profile/:name/reviews" element={<MovieReviewPage />} />
         <Route path="/profile/:name/following" element={<FollowingPage />} />
         <Route path="/films/upcoming" element={<MoviesPage />} />
         <Route path="/films/:genre" element={<MoviesPage />} />
         <Route path="/films/:genre/:popularity" element={<MoviesPage />} />
         <Route path="/films/:genre/:popularity/:decade" element={<MoviesPage />} />
+        <Route path="/tv" element={<TVPage />} />
+        <Route path="/tv/airing" element={<TVPage />} />
+        <Route path="/tv/:genre" element={<TVPage />} />
+        <Route path="/tv/:genre/:popularity" element={<TVPage />} />
+        <Route path="/tv/:genre/:popularity/:decade" element={<TVPage />} />
+        <Route path="/show/:showId" element={<ShowPage />} />
+        <Route path="/show/:showId/:slug" element={<ShowPage />} />
         <Route path="/review/:reviewId" element={<IndividualReviewPage />} />
         <Route path="/movie/:movieid" element={<Movie/>}/>
         <Route path="/moviemap" element={<MovieMap/>}/>

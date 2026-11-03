@@ -79,6 +79,61 @@ export function getMovieDetails(id) {
     return request;
 }
 
+const STORAGE_PREFIX_TV = 'tmdb-tv-';
+
+/**
+ * Like getMovieDetails, for a TV show: resolves to { id, name,
+ * original_name, first_air_date, poster_path, backdrop_path,
+ * number_of_seasons } or null. Never rejects.
+ */
+export function getShowDetails(id) {
+    const key = 'tv:' + id;
+    if (memory.has(key)) {
+        return memory.get(key);
+    }
+    let stored = null;
+    try {
+        const raw = sessionStorage.getItem(STORAGE_PREFIX_TV + id);
+        stored = raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        stored = null;
+    }
+    if (stored) {
+        const resolved = Promise.resolve(stored);
+        memory.set(key, resolved);
+        return resolved;
+    }
+    const request = fetch('https://api.themoviedb.org/3/tv/' + id + '?language=en-US', options)
+        .then(res => (res.ok ? res.json() : null))
+        .then(json => {
+            if (!json || json.id === undefined) {
+                memory.delete(key);
+                return null;
+            }
+            const details = {
+                id: json.id,
+                name: json.name,
+                original_name: json.original_name,
+                first_air_date: json.first_air_date || '',
+                poster_path: json.poster_path,
+                backdrop_path: json.backdrop_path,
+                number_of_seasons: json.number_of_seasons
+            };
+            try {
+                sessionStorage.setItem(STORAGE_PREFIX_TV + id, JSON.stringify(details));
+            } catch (e) {
+                // In-memory cache still works.
+            }
+            return details;
+        })
+        .catch(() => {
+            memory.delete(key);
+            return null;
+        });
+    memory.set(key, request);
+    return request;
+}
+
 /**
  * Runs fn over items with at most `limit` in flight, calling onResult(result,
  * item) as each one finishes. Resolves when all are done.
