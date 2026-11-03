@@ -3,7 +3,7 @@
 </h1>
 
 <div align="center">
-  <img src="https://github.com/Cinematd/Cinematd/blob/main/movieapp/public/favicon.png" align="center"/>
+  <img src="https://github.com/Cinematd/Cinematd/blob/master/movieapp/public/favicon.png" align="center"/>
 </div>
 
 <div align="center">
