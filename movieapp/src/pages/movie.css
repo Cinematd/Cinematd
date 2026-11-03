@@ -395,6 +395,37 @@
   outline-color: var(--tungsten);
 }
 
+/* Each favourite in the "pick one to replace" picker. */
+.favorite-choice {
+  display: block;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--silver);
+  text-align: left;
+  cursor: pointer;
+}
+
+.favorite-choice:hover .favorite-movie-poster,
+.favorite-choice:focus-visible .favorite-movie-poster {
+  outline-color: var(--tungsten);
+}
+
+.favorite-choice:focus-visible {
+  outline: none;
+}
+
+.favorite-choice-title {
+  display: block;
+  margin-top: 8px;
+  font-size: var(--text-sm);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }

@@ -20,7 +20,7 @@ import Modal from '@mui/material/Modal';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import { tmdbImage, resizeTmdbUrl } from '../util/tmdb';
 import { getMovieDetails, forEachLimited, normaliseTitle } from '../util/movieDetails';
-import { customPosterPath, fallBackTo } from '../util/posters';
+import { customPosterPath, memberPosterUrl, fallBackTo } from '../util/posters';
 
 const options = {
     method: 'GET',
@@ -74,7 +74,8 @@ function Movie() {
     const [director, setDirector] = useState('');
     const [logged, setLogged] = useState('Log');
     const [watchlist, setWatchlist] = useState('Add to Watchlist');
-    const [favoriteMovies, setFavoriteMovies] = useState([]);
+    // Favourites shown in the "pick one to replace" picker (null while loading).
+    const [favoriteChoices, setFavoriteChoices] = useState(null);
     const [isFavorite, setIsFavorite] = useState('#ece7de');
 
     const [json, setJSON] = useState({});
@@ -238,6 +239,15 @@ function Movie() {
             json[user].posters[String(id)] = choice;
         } else {
             delete json[user].posters[String(id)];
+        }
+        // Older versions saved a poster on each list entry; drop those for this
+        // film so the choice above is used everywhere.
+        for (const list of ['films', 'favoriteFilms', 'watchlist']) {
+            for (const entry of json[user][list] || []) {
+                if (entry && String(entry.id) === String(id)) {
+                    delete entry.poster;
+                }
+            }
         }
         setChosenPoster(choice);
         setDoc(doc(getFirestore(app), "members", "member"), json);
@@ -580,89 +590,40 @@ function Movie() {
                 </button>
 
                 <button className='add-to-favorite-button' aria-label="Favorite" onClick={() => {
-                    const favPromises = [];
-                    let exists = false;
-                    for (let i = 0; i < json[user].favoriteFilms.length; i++) {
-                        if (json[user].favoriteFilms[i].id === id) {
-                            exists = true;
-                            break;
-                        }
+                    if (user === null || json[user] === undefined) {
+                        redirect('/signin');
+                        return;
                     }
-                    if (json[user].favoriteFilms.length === 5) {
-                        if (!exists) {
-                            for (let i = 0; i < json[user].favoriteFilms.length; i++) {
-                                const favorite = json[user].favoriteFilms[i];
-        
-                                favPromises.push(fetch('https://api.themoviedb.org/3/movie/' + json[user].favoriteFilms[i].id + '?language=en-US', options).then(res => res.json()).then(json => json));
-        
-                                const res = [];
-                                const movs = [];
-                                Promise.all(favPromises).then(results => {
-                                    for (let j = 0; j < results.length; j++) {
-                                        let release = '';
-                                        let poster = tmdbImage(results[j].poster_path, 'w342');
-                
-                                        if (results[j].release_date !== undefined) {
-                                            release = results[j].release_date.split('-')[0];
-                                        }
-                                        for (let k = 0; k < json[user].favoriteFilms.length; k++) {
-                                            if (json[user].favoriteFilms[k].id === results[j].id && json[user].favoriteFilms[k].poster !== undefined) {
-                                                poster = resizeTmdbUrl(json[user].favoriteFilms[k].poster);
-                                            }
-                                        }
-                                        const map = {
-                                            poster: poster
-                                        }
-                                        res.push(map);
-                                    }
-                                    for (let i = 0; i < res.length; i++) {
-                                        const movie = res[i];
-                            
-                                        if (movie === undefined) {
-                                            continue;
-                                        }
-                                        movs.push(movie.poster);
-                                    }
-                                    setFavoriteMovies(movs);
-                                });
-                            }
-                            handleOpen();
-                        } else {
-                            for (let i = 0; i < json[user].favoriteFilms.length; i++) {
-                                if (json[user].favoriteFilms[i].id === id) {
-                                    json[user].favoriteFilms.splice(i, 1);
-                                    break;
-                                }
-                            }
-                            const set = async () => {
-                                await setDoc(doc(getFirestore(app), "members", "member"), json);
-                            }
-                            set();
-                            setIsFavorite('#ece7de');
-                        }
+                    const filmId = queue.get(0) == null ? id : queue.get(0).id;
+                    const favorites = json[user].favoriteFilms;
+                    const save = () => setDoc(doc(getFirestore(app), "members", "member"), json);
+
+                    if (favorites.some(entry => entry && String(entry.id) === String(filmId))) {
+                        // Already a favourite: remove it.
+                        json[user].favoriteFilms = favorites.filter(entry => !entry || String(entry.id) !== String(filmId));
+                        save();
+                        setIsFavorite('#ece7de');
+                    } else if (favorites.length < 5) {
+                        favorites.push({ id: filmId });
+                        save();
+                        setIsFavorite('#e0a84e');
                     } else {
-                        if (!exists) {
-                            json[user].favoriteFilms.push({
-                                id: id
-                            });
-                            const set = async () => {
-                                await setDoc(doc(getFirestore(app), "members", "member"), json);
-                            }
-                            set();
-                            setIsFavorite('#e0a84e');
-                        } else {
-                            for (let j = 0; j < json[user].favoriteFilms.length; j++) {
-                                if (json[user].favoriteFilms[j].id === id) {
-                                    json[user].favoriteFilms.splice(j, 1);
-                                    break;
-                                }
-                            }
-                            const set = async () => {
-                                await setDoc(doc(getFirestore(app), "members", "member"), json);
-                            }
-                            set();
-                            setIsFavorite('#ece7de');
-                        }
+                        // Favourites are full: show the member's current five (with
+                        // the posters they chose) so they can pick one to replace.
+                        const current = favorites.slice(0, 5);
+                        setFavoriteChoices(null);
+                        handleOpen();
+                        Promise.all(current.map(entry => getMovieDetails(entry.id))).then(details => {
+                            setFavoriteChoices(current.map((entry, index) => {
+                                const film = details[index];
+                                return {
+                                    index: index,
+                                    title: film ? (film.title || film.original_title) : 'Film unavailable',
+                                    poster: memberPosterUrl(json[user], entry.id, film ? film.poster_path : null, 'w342', entry.poster),
+                                    defaultPoster: film ? tmdbImage(film.poster_path, 'w342') : ''
+                                };
+                            }));
+                        });
                     }
             }}><FavoriteIcon style={{color: isFavorite}}/></button>
                 <Modal
@@ -676,54 +637,24 @@ function Movie() {
                             <span className="modal-title">Your favorites are full. Pick one to replace.</span>
                         </Typography>
                         <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                            <div className="favorite-movies-list">
-                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[0]} onClick={() => {
-                                    json[user].favoriteFilms[0].id = queue.get(0).id;
-                                    const set = async () => {
-                                        await setDoc(doc(getFirestore(app), "members", "member"), json);
-                                    }
-                                    set();
-                                    handleClose();
-                                    setIsFavorite('#e0a84e');
-                                }}></img>
-                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[1]} onClick={() => {
-                                    json[user].favoriteFilms[1].id = queue.get(0).id;
-                                    const set = async () => {
-                                        await setDoc(doc(getFirestore(app), "members", "member"), json);
-                                    }
-                                    set();
-                                    handleClose();
-                                    setIsFavorite('#e0a84e');
-                                }}></img>
-                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[2]} onClick={() => {
-                                    json[user].favoriteFilms[2].id = queue.get(0).id;
-                                    const set = async () => {
-                                        await setDoc(doc(getFirestore(app), "members", "member"), json);
-                                    }
-                                    set();
-                                    handleClose();
-                                    setIsFavorite('#e0a84e');
-                                }}></img>
-                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[3]} onClick={() => {
-                                    json[user].favoriteFilms[3].id = queue.get(0).id;
-                                    const set = async () => {
-                                        await setDoc(doc(getFirestore(app), "members", "member"), json);
-                                    }
-                                    set();
-                                    handleClose();
-                                    setIsFavorite('#e0a84e');
-                                }}></img>
-                                <img loading="lazy" decoding="async" className="favorite-movie-poster" src={favoriteMovies[4]} onClick={() => {
-                                    json[user].favoriteFilms[4].id = queue.get(0).id;
-                                    const set = async () => {
-                                        await setDoc(doc(getFirestore(app), "members", "member"), json);
-                                    }
-                                    set();
-                                    handleClose();
-                                    setIsFavorite('#e0a84e');
-                                }}></img>
-                                
-                            </div>
+                            {favoriteChoices === null ? (
+                                <p className="poster-picker-note">Loading your favourites…</p>
+                            ) : (
+                                <div className="favorite-movies-list">
+                                    {favoriteChoices.map(choice => (
+                                        <button type="button" key={choice.index} className="favorite-choice" aria-label={'Replace ' + choice.title} onClick={() => {
+                                            // A fresh entry, so nothing from the replaced film carries over.
+                                            json[user].favoriteFilms[choice.index] = { id: queue.get(0) == null ? id : queue.get(0).id };
+                                            setDoc(doc(getFirestore(app), "members", "member"), json);
+                                            handleClose();
+                                            setIsFavorite('#e0a84e');
+                                        }}>
+                                            <img loading="lazy" decoding="async" className="favorite-movie-poster" src={choice.poster} alt="" onError={fallBackTo(choice.defaultPoster)}></img>
+                                            <span className="favorite-choice-title">{choice.title}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                         </Typography>
                     </Box>
                 </Modal>
