@@ -180,16 +180,16 @@ const Home = () => {
           <h2>Movie of the day</h2>
         </div>
         <div className="movie-of-the-day-container lobby-card">
-          <div className="motd-still" style={{backgroundImage: "url(" + tmdbImage('/7HR38hMBl23lf38MAN63y4pKsHz.jpg', 'w1280') + ")"}}></div>
+          <div className="motd-still" style={{backgroundImage: "url(" + tmdbImage('/38s40n4NEnqpk5g5tojuTXEEO5H.jpg', 'w1280') + ")"}}></div>
           <div className='content-motd'>
-            <Link to={`/movie/past-lives-2023`} className="motd-poster-link">
-              <img className='movie-of-the-day-poster' src={tmdbImage('/k3waqVXSnvCZWfJYNtdamTgTtTA.jpg')} alt='Past Lives poster'></img>
+            <Link to={`/movie/狂野时代-2025`} className="motd-poster-link">
+              <img className='movie-of-the-day-poster' src={tmdbImage('/9aatiJqWziV2c8Q9JVuXqlIEpLC.jpg')} alt='Resurrection Poster'></img>
             </Link>
             <div className="motd-text">
-              <h3 className="movie-of-the-day-title">Past Lives</h3>
-              <p className="credit">Directed by Celine Song</p>
-              <p className="movie-of-the-day-description">Nora and Hae Sung, two childhood friends, are reunited in New York for one fateful week as they confront notions of destiny, love, and the choices that make a life.</p>
-              <Link to={`/movie/past-lives-2023`} className="btn-ghost">View film</Link>
+              <h3 className="movie-of-the-day-title">Resurrection</h3>
+              <p className="credit">Directed by Bi Gan</p>
+              <p className="movie-of-the-day-description">In a world where humanity has lost the ability to dream in exchange for eternal life, one creature remains entranced by the fading illusions of the dreamworld. This monster, adrift in reverie, clings to visions no one else can see - until a woman appears. As she allows him to dream one final time, his life of different identities is replayed as they journey through his century of existence.</p>
+              <Link to={`/movie/狂野时代-2025`} className="btn-ghost">View film</Link>
             </div>
           </div>
         </div>
